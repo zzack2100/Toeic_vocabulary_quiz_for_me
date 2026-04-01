@@ -36,7 +36,12 @@ describe('resolveQuizRouteRedirect', () => {
   it('redirects the daily quiz route to the result route when today\'s quiz is already submitted', () => {
     expect(
       resolveQuizRouteRedirect('daily-quiz', createSnapshot({ isSubmitted: true, score: 1 }), getTodayKey()),
-    ).toEqual({ name: 'quiz-result' })
+    ).toEqual({
+      name: 'quiz-result',
+      query: {
+        redirect: 'daily-locked',
+      },
+    })
   })
 
   it('treats stale snapshots as unavailable when checking the result route', () => {

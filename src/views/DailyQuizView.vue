@@ -117,17 +117,18 @@ function handleSubmit() {
   display: grid;
   gap: 6px;
   padding: 14px;
-  border-radius: 18px;
-  border: 1px solid rgba(31, 36, 48, 0.08);
-  background: rgba(255, 255, 255, 0.68);
+  border-radius: var(--border-radius-md);
+  border: 1px solid var(--border-subtle);
+  background: var(--surface-muted);
 }
 
 .quiz-metric-card__label {
-  color: #5e6472;
+  color: var(--text-muted);
   font-size: 0.92rem;
 }
 
 .quiz-metric-card__value {
+  color: var(--text-main);
   font-size: 1.75rem;
   line-height: 1;
 }

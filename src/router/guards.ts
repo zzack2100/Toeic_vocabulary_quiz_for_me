@@ -17,7 +17,9 @@ export function resolveQuizRouteRedirect(
   }
 
   if (toName === 'daily-quiz' && hasSubmittedQuizForToday) {
-    return { name: 'quiz-result' }
+    return { name: 'quiz-result', query: { redirect: 'daily-locked' } } as true | {
+      name: QuizRouteGuardTarget
+    }
   }
 
   return true

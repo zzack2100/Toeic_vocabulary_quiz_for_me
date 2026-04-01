@@ -223,7 +223,7 @@ function getOptionStateIcon(option: string) {
   transform: translateY(-2px);
   border-color: var(--accent);
   background: var(--surface-hover);
-  box-shadow: 0 14px 28px rgba(53, 41, 31, 0.12);
+  box-shadow: var(--shadow-hover);
 }
 
 .option:active {
@@ -252,7 +252,7 @@ function getOptionStateIcon(option: string) {
   min-width: 32px;
   height: 32px;
   border-radius: 999px;
-  background: rgba(31, 36, 48, 0.06);
+  background: var(--tone-neutral-soft-strong);
   color: var(--text-muted);
   font-size: 0.95rem;
   font-weight: 700;
@@ -274,7 +274,7 @@ function getOptionStateIcon(option: string) {
   flex-shrink: 0;
   padding: 6px 10px;
   border-radius: 999px;
-  background: rgba(31, 36, 48, 0.06);
+  background: var(--tone-neutral-soft-strong);
   color: var(--text-muted);
   font-size: 0.82rem;
   font-weight: 700;
@@ -296,7 +296,7 @@ function getOptionStateIcon(option: string) {
 
 .option--selected .option__index,
 .option--selected .option__state {
-  background: rgba(212, 106, 46, 0.16);
+  background: var(--tone-accent-strong-soft);
   color: var(--accent-strong);
 }
 
@@ -308,7 +308,7 @@ function getOptionStateIcon(option: string) {
 
 .option--correct .option__index,
 .option--correct .option__state {
-  background: rgba(34, 111, 84, 0.16);
+  background: var(--tone-success-strong-soft);
   color: var(--success);
 }
 
@@ -320,7 +320,7 @@ function getOptionStateIcon(option: string) {
 
 .option--incorrect .option__index,
 .option--incorrect .option__state {
-  background: rgba(178, 58, 72, 0.16);
+  background: var(--tone-danger-strong-soft);
   color: var(--danger);
 }
 

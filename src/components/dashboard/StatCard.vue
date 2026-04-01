@@ -26,7 +26,7 @@ defineProps<{
   min-height: 188px;
   padding: 18px;
   border-radius: var(--border-radius-lg);
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.72), rgba(255, 248, 236, 0.96));
+  background: linear-gradient(180deg, var(--card-gradient-start), var(--card-gradient-end));
   border: 1px solid var(--border);
   box-shadow: var(--shadow-soft);
   transition:
@@ -37,7 +37,7 @@ defineProps<{
 
 .stat-card:hover {
   transform: translateY(-2px);
-  border-color: rgba(31, 36, 48, 0.18);
+  border-color: var(--border-strong);
 }
 
 .stat-card__header {
@@ -53,7 +53,7 @@ defineProps<{
   width: 34px;
   height: 34px;
   border-radius: 999px;
-  background: rgba(31, 36, 48, 0.08);
+  background: var(--tone-neutral-soft);
   color: var(--text-muted);
   font-size: 0.95rem;
   line-height: 1;

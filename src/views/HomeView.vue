@@ -152,7 +152,7 @@ const dashboardActions = computed(() => [
   border: 1px solid var(--border);
   border-radius: var(--border-radius-lg);
   background:
-    linear-gradient(180deg, rgba(255, 251, 245, 0.94), rgba(255, 246, 236, 0.96)),
+    linear-gradient(180deg, var(--panel-gradient-start), var(--panel-gradient-end)),
     var(--surface);
   box-shadow: var(--shadow-soft);
 }
@@ -171,7 +171,7 @@ const dashboardActions = computed(() => [
   width: 40px;
   height: 40px;
   border-radius: 999px;
-  background: rgba(31, 36, 48, 0.08);
+  background: var(--tone-neutral-soft);
   color: var(--text-muted);
   font-size: 1rem;
   line-height: 1;
@@ -214,7 +214,7 @@ const dashboardActions = computed(() => [
   padding: 14px 16px;
   border: 1px solid var(--border);
   border-radius: var(--border-radius-md);
-  background: rgba(255, 255, 255, 0.54);
+  background: var(--surface-muted-strong);
 }
 
 .dashboard-action-card__metric-label {

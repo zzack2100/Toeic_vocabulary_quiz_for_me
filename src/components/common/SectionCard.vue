@@ -22,10 +22,10 @@ defineProps<{
 
 <style scoped>
 .card {
-  border: 1px solid rgba(31, 36, 48, 0.1);
-  border-radius: 28px;
-  background: rgba(255, 250, 241, 0.88);
-  box-shadow: 0 18px 50px rgba(53, 41, 31, 0.12);
+  border: 1px solid var(--border);
+  border-radius: var(--border-radius-lg);
+  background: var(--card-surface);
+  box-shadow: var(--shadow);
 }
 
 .card__header {
@@ -38,12 +38,13 @@ defineProps<{
 
 .card__title {
   margin: 0;
+  color: var(--text-main);
   font-size: 1.3rem;
 }
 
 .card__subtitle {
   margin: 6px 0 0;
-  color: #5e6472;
+  color: var(--text-muted);
 }
 
 .card__body {

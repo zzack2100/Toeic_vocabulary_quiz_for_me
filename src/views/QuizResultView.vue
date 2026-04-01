@@ -1,15 +1,18 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import { RouterLink, useRouter } from 'vue-router'
+import { RouterLink, useRoute, useRouter } from 'vue-router'
 import SectionCard from '../components/common/SectionCard.vue'
 import QuizQuestionCard from '../components/quiz/QuizQuestionCard.vue'
 import { useQuizStore } from '../stores/quiz'
 import { useVocabularyStore } from '../stores/vocabulary'
 
 const router = useRouter()
+const route = useRoute()
 const quizStore = useQuizStore()
 const vocabularyStore = useVocabularyStore()
 const activeFilter = ref<'all' | 'incorrect' | 'correct'>('all')
+
+const showRedirectNotice = computed(() => route.query.redirect === 'daily-locked')
 
 onMounted(() => {
   if (vocabularyStore.words.length === 0) {
@@ -137,6 +140,9 @@ const summaryItems = computed(() => [
         <p class="submitted-banner__text">
           Re-entering the daily quiz will bring you back here so progress, spacing intervals, and mistake tracking are only applied once per day.
         </p>
+        <p v-if="showRedirectNotice" class="submitted-banner__notice">
+          You were redirected here because today&apos;s quiz has already been submitted.
+        </p>
       </div>
       <div class="submitted-banner__actions">
         <RouterLink class="button button--ghost" to="/review">Review due words</RouterLink>
@@ -233,7 +239,7 @@ const summaryItems = computed(() => [
   border: 1px solid var(--border);
   border-radius: var(--border-radius-lg);
   background:
-    linear-gradient(180deg, rgba(255, 250, 241, 0.96), rgba(255, 245, 236, 0.92)),
+    linear-gradient(180deg, var(--banner-gradient-start), var(--banner-gradient-end)),
     var(--surface);
   box-shadow: var(--shadow-soft);
 }
@@ -264,6 +270,12 @@ const summaryItems = computed(() => [
 .submitted-banner__text {
   margin: 0;
   color: var(--text-muted);
+}
+
+.submitted-banner__notice {
+  margin: 4px 0 0;
+  color: var(--accent-strong);
+  font-size: 0.95rem;
 }
 
 .submitted-banner__actions {
@@ -298,7 +310,7 @@ const summaryItems = computed(() => [
   border-radius: 999px;
   font-size: 0.95rem;
   line-height: 1;
-  background: rgba(31, 36, 48, 0.08);
+  background: var(--tone-neutral-soft);
   color: var(--text-muted);
 }
 
@@ -320,12 +332,12 @@ const summaryItems = computed(() => [
 }
 
 .summary-item--correct .summary-item__icon {
-  background: rgba(34, 111, 84, 0.16);
+  background: var(--tone-success-strong-soft);
   color: var(--success);
 }
 
 .summary-item--incorrect .summary-item__icon {
-  background: rgba(178, 58, 72, 0.16);
+  background: var(--tone-danger-strong-soft);
   color: var(--danger);
 }
 

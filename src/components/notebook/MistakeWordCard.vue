@@ -40,18 +40,19 @@ const reviewedLabel = computed(() => formatDateLabel(props.record.last_wrong_at)
   gap: 14px;
   padding: 18px;
   border-radius: 22px;
-  background: rgba(255, 255, 255, 0.72);
-  border: 1px solid rgba(31, 36, 48, 0.08);
+  background: var(--surface-muted);
+  border: 1px solid var(--border-subtle);
 }
 
 .mistake-card__title {
   margin: 0;
+  color: var(--text-main);
   font-size: 1.5rem;
 }
 
 .mistake-card__translation {
   margin: 6px 0 0;
-  color: #5e6472;
+  color: var(--text-muted);
 }
 
 .mistake-card__meta {
@@ -67,10 +68,11 @@ const reviewedLabel = computed(() => formatDateLabel(props.record.last_wrong_at)
 }
 
 .mistake-card__meta dt {
-  color: #5e6472;
+  color: var(--text-muted);
 }
 
 .mistake-card__meta dd {
   margin: 0;
+  color: var(--text-main);
 }
 </style>
