@@ -19,11 +19,19 @@ onMounted(() => {
 })
 
 const currentQuestion = computed(() => quizStore.currentQuestion)
+const currentWord = computed(() =>
+  currentQuestion.value ? vocabularyStore.getWordById(currentQuestion.value.wordId) : undefined,
+)
 const selectedAnswer = computed(() =>
   currentQuestion.value ? quizStore.answers[currentQuestion.value.wordId] : undefined,
 )
 
 function handleSubmit() {
+  if (quizStore.isSubmitted) {
+    router.push('/quiz/result')
+    return
+  }
+
   quizStore.submitQuiz()
   router.push('/quiz/result')
 }
@@ -41,7 +49,7 @@ function handleSubmit() {
       </div>
       <div class="button-row">
         <button class="button button--ghost" @click="quizStore.initializeDailyQuiz()">Regenerate</button>
-        <button class="button" :disabled="quizStore.questions.length === 0" @click="handleSubmit">
+        <button class="button" :disabled="quizStore.questions.length === 0 || quizStore.isSubmitted" @click="handleSubmit">
           Submit quiz
         </button>
       </div>
@@ -76,6 +84,9 @@ function handleSubmit() {
         :question-number="quizStore.currentIndex + 1"
         :total-questions="quizStore.questions.length"
         :selected-answer="selectedAnswer"
+        :part-of-speech="currentWord?.part_of_speech"
+        :definition="currentWord?.translation_zh_TW"
+        :example-sentence="currentWord?.example_sentence"
         @select="quizStore.answerQuestion(currentQuestion.wordId, $event)"
       />
 

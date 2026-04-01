@@ -1,6 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
+import { getTodayKey } from '../utils/date'
 import { useQuizStore } from './quiz'
+import { useMistakesStore } from './mistakes'
 import { useSettingsStore } from './settings'
 import { useVocabularyStore } from './vocabulary'
 import { storageService } from '../services/storageService'
@@ -177,5 +179,115 @@ describe('useQuizStore persisted selection summary', () => {
     expect(snapshot!.selectionSummary.due + snapshot!.selectionSummary.mistake + snapshot!.selectionSummary.fresh).toBe(
       snapshot!.selectionSummary.total,
     )
+  })
+
+  it('does not apply memory or mistake updates twice after a quiz has already been submitted', () => {
+    const quizStore = useQuizStore()
+    const mistakesStore = useMistakesStore()
+    const settingsStore = useSettingsStore()
+    const vocabularyStore = useVocabularyStore()
+
+    settingsStore.resetMemoryOnWrong = true
+    vocabularyStore.words = [
+      createWord('correct-word', createMemory()),
+      createWord('incorrect-word', createMemory({ memory_level: 2 }), 'verb'),
+    ]
+
+    quizStore.quizDate = getTodayKey()
+    quizStore.questions = [
+      {
+        wordId: 'correct-word',
+        prompt: 'word-correct-word',
+        correctAnswer: 'translation-correct-word',
+        options: ['translation-correct-word', 'other-a', 'other-b', 'other-c'],
+      },
+      {
+        wordId: 'incorrect-word',
+        prompt: 'word-incorrect-word',
+        correctAnswer: 'translation-incorrect-word',
+        options: ['translation-incorrect-word', 'wrong-a', 'wrong-b', 'wrong-c'],
+      },
+    ]
+    quizStore.answers = {
+      'correct-word': 'translation-correct-word',
+      'incorrect-word': 'wrong-a',
+    }
+
+    quizStore.submitQuiz()
+
+    const firstCorrectWord = vocabularyStore.getWordById('correct-word')
+    const firstIncorrectWord = vocabularyStore.getWordById('incorrect-word')
+    const firstSnapshot = storageService.getDailyQuiz()
+
+    expect(quizStore.score).toBe(1)
+    expect(quizStore.isSubmitted).toBe(true)
+    expect(firstCorrectWord?.memory.times_seen).toBe(1)
+    expect(firstCorrectWord?.memory.times_correct).toBe(1)
+    expect(firstIncorrectWord?.memory.times_seen).toBe(1)
+    expect(firstIncorrectWord?.memory.times_incorrect).toBe(1)
+    expect(mistakesStore.mistakeCount).toBe(1)
+    expect(firstSnapshot?.isSubmitted).toBe(true)
+    expect(firstSnapshot?.score).toBe(1)
+
+    quizStore.submitQuiz()
+
+    const secondCorrectWord = vocabularyStore.getWordById('correct-word')
+    const secondIncorrectWord = vocabularyStore.getWordById('incorrect-word')
+    const secondSnapshot = storageService.getDailyQuiz()
+
+    expect(secondCorrectWord?.memory.times_seen).toBe(1)
+    expect(secondCorrectWord?.memory.times_correct).toBe(1)
+    expect(secondIncorrectWord?.memory.times_seen).toBe(1)
+    expect(secondIncorrectWord?.memory.times_incorrect).toBe(1)
+    expect(mistakesStore.notebook['incorrect-word']?.wrong_count).toBe(1)
+    expect(quizStore.score).toBe(1)
+    expect(secondSnapshot).toEqual(firstSnapshot)
+  })
+
+  it('restores a saved draft quiz with questions, answers, current index, and selection summary intact', () => {
+    const quizStore = useQuizStore()
+    const vocabularyStore = useVocabularyStore()
+
+    vocabularyStore.words = [
+      createWord('draft-1', createMemory({ times_seen: 2 })),
+      createWord('draft-2', createMemory({ is_in_mistake_notebook: true, times_incorrect: 1 }), 'verb'),
+    ]
+
+    storageService.saveDailyQuiz({
+      date: getTodayKey(),
+      questionIds: ['draft-1', 'draft-2'],
+      selectionSummary: {
+        due: 1,
+        mistake: 1,
+        fresh: 0,
+        fallback: 0,
+        total: 2,
+      },
+      answers: {
+        'draft-1': 'translation-draft-1',
+      },
+      currentIndex: 1,
+      isSubmitted: false,
+      score: 0,
+    })
+
+    const snapshot = quizStore.restoreSavedQuiz()
+
+    expect(snapshot).not.toBeNull()
+    expect(quizStore.quizDate).toBe(getTodayKey())
+    expect(quizStore.questions.map((question) => question.wordId)).toEqual(['draft-1', 'draft-2'])
+    expect(quizStore.answers).toEqual({
+      'draft-1': 'translation-draft-1',
+    })
+    expect(quizStore.currentIndex).toBe(1)
+    expect(quizStore.currentQuestion?.wordId).toBe('draft-2')
+    expect(quizStore.selectionSummary).toEqual({
+      due: 1,
+      mistake: 1,
+      fresh: 0,
+      fallback: 0,
+      total: 2,
+    })
+    expect(quizStore.isSubmitted).toBe(false)
   })
 })

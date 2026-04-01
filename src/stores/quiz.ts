@@ -71,13 +71,22 @@ export const useQuizStore = defineStore('quiz', {
         snapshot.selectionSummary ?? summarizeQuizFromIds(useVocabularyStore().words, snapshot.questionIds)
       return snapshot
     },
+    restoreSavedQuiz() {
+      const snapshot = this.loadSavedQuiz()
+
+      if (!snapshot) {
+        return null
+      }
+
+      this.questions = buildQuizFromIds(useVocabularyStore().words, snapshot.questionIds)
+      return snapshot
+    },
     initializeDailyQuiz() {
       const vocabularyStore = useVocabularyStore()
       const settingsStore = useSettingsStore()
-      const snapshot = this.loadSavedQuiz()
+      const snapshot = this.restoreSavedQuiz()
 
       if (snapshot) {
-        this.questions = buildQuizFromIds(vocabularyStore.words, snapshot.questionIds)
         return
       }
 
@@ -107,6 +116,10 @@ export const useQuizStore = defineStore('quiz', {
       this.persistSnapshot()
     },
     submitQuiz() {
+      if (this.isSubmitted) {
+        return
+      }
+
       const vocabularyStore = useVocabularyStore()
       const settingsStore = useSettingsStore()
       const mistakesStore = useMistakesStore()

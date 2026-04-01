@@ -1,5 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import type { RouteRecordRaw } from 'vue-router'
+import { getTodayKey } from '../utils/date'
+import { storageService } from '../services/storageService'
+import { resolveQuizRouteRedirect } from './guards'
 import HomeView from '../views/HomeView.vue'
 import DailyQuizView from '../views/DailyQuizView.vue'
 import QuizResultView from '../views/QuizResultView.vue'
@@ -19,6 +22,10 @@ const routes: RouteRecordRaw[] = [
 const router = createRouter({
   history: createWebHistory(),
   routes,
+})
+
+router.beforeEach((to) => {
+  return resolveQuizRouteRedirect(to.name, storageService.getDailyQuiz(), getTodayKey())
 })
 
 export default router
