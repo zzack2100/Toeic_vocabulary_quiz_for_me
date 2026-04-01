@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto'
+import OpenAI from 'openai'
 
 export const TOEIC_VOCABULARY_EXPANSION_SYSTEM_PROMPT = `You are a TOEIC curriculum assistant generating business-English vocabulary for adult learners.
 Return exactly 10 items as a JSON array.
@@ -275,23 +276,7 @@ function buildVocabularyItem(entry, topic) {
   }
 }
 
-export function buildLlmRequest(topic) {
-  return {
-    model: 'gpt-4.1-mini',
-    messages: [
-      {
-        role: 'system',
-        content: TOEIC_VOCABULARY_EXPANSION_SYSTEM_PROMPT,
-      },
-      {
-        role: 'user',
-        content: `Generate 10 TOEIC-level vocabulary words for the topic "${topic}". Return JSON only.`,
-      },
-    ],
-  }
-}
-
-export async function expandVocabularyByTopic(topic) {
+function buildMockVocabulary(topic) {
   const normalizedTopic = normalizeTopic(topic)
   const rankedEntries = [...VOCABULARY_BANK]
     .map((entry) => ({ entry, score: scoreEntryForTopic(entry, normalizedTopic) }))
@@ -316,8 +301,105 @@ export async function expandVocabularyByTopic(topic) {
     selectedEntries.push(nextEntry)
   }
 
+  return selectedEntries.map((entry) => buildVocabularyItem(entry, topic))
+}
+
+function stripCodeFences(value) {
+  return value.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/```$/i, '').trim()
+}
+
+function normalizeGeneratedItem(item, topic) {
+  if (!item || typeof item !== 'object') {
+    throw new Error('Generated item is not an object.')
+  }
+
+  const word = typeof item.word === 'string' ? item.word.trim() : ''
+  const translation = typeof item.translation_zh_TW === 'string' ? item.translation_zh_TW.trim() : ''
+  const partOfSpeech = typeof item.part_of_speech === 'string' ? item.part_of_speech.trim() : ''
+  const exampleSentence = typeof item.example_sentence === 'string' ? item.example_sentence.trim() : ''
+  const rawTags = Array.isArray(item.tags) ? item.tags.filter((tag) => typeof tag === 'string' && tag.trim()) : []
+
+  if (!word || !translation || !partOfSpeech || !exampleSentence) {
+    throw new Error('Generated item is missing required string fields.')
+  }
+
   return {
-    words: selectedEntries.map((entry) => buildVocabularyItem(entry, topic)),
+    id: randomUUID(),
+    word,
+    translation_zh_TW: translation,
+    part_of_speech: partOfSpeech,
+    example_sentence: exampleSentence,
+    difficulty: 'medium',
+    tags: Array.from(new Set([topic, ...rawTags.map((tag) => tag.trim())])),
+  }
+}
+
+function parseGeneratedVocabulary(content, topic) {
+  const parsed = JSON.parse(stripCodeFences(content))
+
+  if (!Array.isArray(parsed)) {
+    throw new Error('OpenAI response is not a JSON array.')
+  }
+
+  if (parsed.length !== 10) {
+    throw new Error('OpenAI response did not return exactly 10 vocabulary items.')
+  }
+
+  return parsed.map((item) => normalizeGeneratedItem(item, topic))
+}
+
+async function expandVocabularyWithOpenAi(topic) {
+  if (!process.env.OPENAI_API_KEY) {
+    return null
+  }
+
+  const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
+  const llmRequest = buildLlmRequest(topic)
+  const completion = await client.chat.completions.create({
+    model: llmRequest.model,
+    messages: llmRequest.messages,
+  })
+  const content = completion.choices[0]?.message?.content
+
+  if (!content) {
+    throw new Error('OpenAI response did not include message content.')
+  }
+
+  return parseGeneratedVocabulary(content, topic)
+}
+
+export function buildLlmRequest(topic) {
+  return {
+    model: 'gpt-4o-mini',
+    messages: [
+      {
+        role: 'system',
+        content: TOEIC_VOCABULARY_EXPANSION_SYSTEM_PROMPT,
+      },
+      {
+        role: 'user',
+        content: `Generate 10 TOEIC-level vocabulary words for the topic "${topic}". Return JSON only.`,
+      },
+    ],
+  }
+}
+
+export async function expandVocabularyByTopic(topic) {
+  try {
+    const words = await expandVocabularyWithOpenAi(topic)
+
+    if (words) {
+      return {
+        words,
+        llmRequest: buildLlmRequest(topic),
+      }
+    }
+  } catch (error) {
+    console.warn('Falling back to mock TOEIC vocabulary expansion.', error)
+  }
+
+  return {
+    words: buildMockVocabulary(topic),
     llmRequest: buildLlmRequest(topic),
   }
 }

@@ -15,6 +15,23 @@ npm run dev:api
 
 The server listens on `http://localhost:3001` by default. Override with `API_PORT` if needed.
 
+### OpenAI setup
+
+To enable real LLM-backed vocabulary generation, set `OPENAI_API_KEY` before starting the API.
+
+PowerShell example:
+
+```powershell
+$env:OPENAI_API_KEY = "your-api-key"
+npm run dev:api
+```
+
+Behavior:
+
+- If `OPENAI_API_KEY` exists, the backend calls OpenAI with `gpt-4o-mini`
+- If the key is missing, the backend falls back to the built-in ranked mock vocabulary generator
+- If the OpenAI call fails or returns invalid JSON, the backend also falls back to the same mock generator
+
 ### Endpoint
 
 `POST /api/vocabulary/expand`
@@ -43,12 +60,19 @@ Response body:
 ]
 ```
 
-### Mock LLM design
+### LLM design
 
-The current implementation is a mock service that ranks a curated TOEIC-style vocabulary bank by topic relevance and returns 10 results.
+The backend supports two execution paths:
+
+- Preferred path: real OpenAI generation through the official `openai` package
+- Fallback path: a ranked curated TOEIC-style vocabulary bank that still returns 10 valid results without external dependencies
 
 The LLM system prompt that would be sent to a provider such as OpenAI is stored in:
 
 - `server/services/vocabularyExpansionService.js`
 
-The same file also exposes a `buildLlmRequest(topic)` helper showing the message structure a future real LLM integration can reuse.
+The same file also exposes a `buildLlmRequest(topic)` helper showing the exact message structure used for the OpenAI request.
+
+Current OpenAI model:
+
+- `gpt-4o-mini`
