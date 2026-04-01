@@ -33,20 +33,21 @@ app.get('/api/health', (_request, response) => {
 
 app.use('/api/vocabulary', vocabularyRouter)
 
-app.use((error, _request, response, _next) => {
-  console.error(error)
-  response.status(500).json({
-    error: 'Internal server error.',
-    message: 'Vocabulary expansion failed unexpectedly.',
-  })
-})
-
 // Serve Vue SPA static files
 app.use(express.static(distPath))
 
 // SPA fallback — let Vue Router handle client-side routes
 app.get('*path', (_request, response) => {
   response.sendFile(path.join(distPath, 'index.html'))
+})
+
+// Error handler must be after all routes (including SPA fallback)
+app.use((error, _request, response, _next) => {
+  console.error(error)
+  response.status(500).json({
+    error: 'Internal server error.',
+    message: 'Vocabulary expansion failed unexpectedly.',
+  })
 })
 
 export { app }
