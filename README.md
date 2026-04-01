@@ -76,3 +76,37 @@ The same file also exposes a `buildLlmRequest(topic)` helper showing the exact m
 Current OpenAI model:
 
 - `gpt-4o-mini`
+
+## Deploy to Render
+
+This project ships a `render.yaml` blueprint so Render can configure the service automatically.
+
+### One-click setup
+
+1. Push the repo to GitHub (already done).
+2. In the Render Dashboard, click **New → Blueprint** and select the repository.
+3. Render reads `render.yaml` and creates a **Web Service** named `toeic-vocabulary-quiz`.
+4. In the service's **Environment** tab, set `OPENAI_API_KEY` to your OpenAI key. (Without it the expansion endpoint still works using the built-in mock generator.)
+5. Trigger a deploy — Render runs `npm ci && npm run build`, then `npm start`.
+
+### Manual setup (without blueprint)
+
+| Setting        | Value                      |
+| -------------- | -------------------------- |
+| Runtime        | Node                       |
+| Build command  | `npm ci && npm run build`  |
+| Start command  | `npm start`                |
+
+Environment variables to add in the Render dashboard:
+
+| Key              | Required | Notes                                      |
+| ---------------- | -------- | ------------------------------------------ |
+| `OPENAI_API_KEY` | No       | Enables real LLM generation; omit for mock |
+| `NODE_ENV`       | No       | Set to `production` (Render does this automatically) |
+
+### How it works
+
+The Express server (`server/index.js`) serves both:
+
+- **API routes** at `/api/*`
+- **Vue SPA** static files from the `dist/` directory, with a catch-all fallback to `index.html` for Vue Router history mode
