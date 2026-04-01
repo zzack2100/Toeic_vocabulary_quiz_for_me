@@ -1,11 +1,12 @@
 import type { DailyQuizSnapshot } from '../types/quiz'
-import type { MistakeNotebook, ProgressMap } from '../types/vocabulary'
+import type { MistakeNotebook, ProgressMap, VocabularySeed } from '../types/vocabulary'
 
 const KEYS = {
   progress: 'toeic.vocab.progress',
   dailyQuiz: 'toeic.quiz.daily',
   mistakes: 'toeic.mistakes',
   settings: 'toeic.settings',
+  customVocabulary: 'toeic.vocab.custom',
 }
 
 function parseJson<T>(key: string, fallback: T): T {
@@ -53,6 +54,12 @@ export const storageService = {
   },
   saveSettings<T extends object>(settings: T) {
     writeJson(KEYS.settings, settings)
+  },
+  getCustomVocabulary(): VocabularySeed[] {
+    return parseJson(KEYS.customVocabulary, [])
+  },
+  saveCustomVocabulary(words: VocabularySeed[]) {
+    writeJson(KEYS.customVocabulary, words)
   },
   resetAll() {
     Object.values(KEYS).forEach((key) => window.localStorage.removeItem(key))

@@ -10,9 +10,18 @@ export async function fetchVocabulary(): Promise<ToeicWord[]> {
   }
 
   const records = (await response.json()) as VocabularySeed[]
+  const customRecords = storageService.getCustomVocabulary()
   const progress = storageService.getProgress()
+  const mergedRecords = [...records, ...customRecords].reduce<VocabularySeed[]>((accumulator, record) => {
+    if (accumulator.some((existing) => existing.id === record.id)) {
+      return accumulator
+    }
 
-  return records.map((record) => ({
+    accumulator.push(record)
+    return accumulator
+  }, [])
+
+  return mergedRecords.map((record) => ({
     ...record,
     memory: progress[record.id] ?? createDefaultMemoryMetadata(),
   }))

@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import { requestVocabularyExpansion } from '../services/vocabularyExpansionApi'
 import { fetchVocabulary } from '../services/vocabularyService'
 import { storageService } from '../services/storageService'
 import type { MemoryMetadata, ProgressMap, ToeicWord } from '../types/vocabulary'
@@ -8,6 +9,7 @@ interface VocabularyState {
   isLoaded: boolean
   lastLoadedAt: string | null
   errorMessage: string | null
+  isExpanding: boolean
 }
 
 export const useVocabularyStore = defineStore('vocabulary', {
@@ -16,6 +18,7 @@ export const useVocabularyStore = defineStore('vocabulary', {
     isLoaded: false,
     lastLoadedAt: null,
     errorMessage: null,
+    isExpanding: false,
   }),
   getters: {
     totalWords: (state) => state.words.length,
@@ -31,6 +34,46 @@ export const useVocabularyStore = defineStore('vocabulary', {
         this.lastLoadedAt = new Date().toISOString()
       } catch (error) {
         this.errorMessage = error instanceof Error ? error.message : 'Unknown loading error.'
+      }
+    },
+    async expandVocabulary(topic: string) {
+      this.errorMessage = null
+      this.isExpanding = true
+
+      try {
+        const expandedWords = await requestVocabularyExpansion(topic)
+        const existingCustomWords = storageService.getCustomVocabulary()
+        const existingIds = new Set(existingCustomWords.map((word) => word.id))
+        const existingWordNames = new Set(this.words.map((word) => word.word.toLowerCase()))
+        const nextCustomWords = [...existingCustomWords]
+
+        let addedCount = 0
+
+        for (const word of expandedWords) {
+          if (existingIds.has(word.id) || existingWordNames.has(word.word.toLowerCase())) {
+            continue
+          }
+
+          nextCustomWords.push(word)
+          existingIds.add(word.id)
+          existingWordNames.add(word.word.toLowerCase())
+          addedCount += 1
+        }
+
+        storageService.saveCustomVocabulary(nextCustomWords)
+        this.words = await fetchVocabulary()
+        this.lastLoadedAt = new Date().toISOString()
+
+        return {
+          requestedCount: expandedWords.length,
+          addedCount,
+          skippedCount: expandedWords.length - addedCount,
+        }
+      } catch (error) {
+        this.errorMessage = error instanceof Error ? error.message : 'Vocabulary expansion failed.'
+        throw error
+      } finally {
+        this.isExpanding = false
       }
     },
     getWordById(id: string) {

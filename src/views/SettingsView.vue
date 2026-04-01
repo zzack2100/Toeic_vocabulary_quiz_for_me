@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ref } from 'vue'
 import { storeToRefs } from 'pinia'
 import SectionCard from '../components/common/SectionCard.vue'
 import { storageService } from '../services/storageService'
@@ -12,7 +13,12 @@ const vocabularyStore = useVocabularyStore()
 const mistakesStore = useMistakesStore()
 const quizStore = useQuizStore()
 
-const { quizSize, resetMemoryOnWrong, theme } = storeToRefs(settingsStore)
+const { quizSize, resetMemoryOnWrong, theme, } = storeToRefs(settingsStore)
+const { isExpanding } = storeToRefs(vocabularyStore)
+
+const expansionTopic = ref('Business Negotiations')
+const expansionStatus = ref('')
+const expansionStatusTone = ref<'neutral' | 'success' | 'error'>('neutral')
 
 function resetAllProgress() {
   storageService.resetAll()
@@ -20,6 +26,25 @@ function resetAllProgress() {
   quizStore.resetQuiz()
   settingsStore.resetSettings()
   vocabularyStore.loadVocabulary()
+}
+
+async function handleVocabularyExpansion() {
+  const topic = expansionTopic.value.trim()
+
+  if (!topic) {
+    expansionStatusTone.value = 'error'
+    expansionStatus.value = 'Enter a TOEIC topic before requesting new vocabulary.'
+    return
+  }
+
+  try {
+    const result = await vocabularyStore.expandVocabulary(topic)
+    expansionStatusTone.value = 'success'
+    expansionStatus.value = `Requested ${result.requestedCount} words for "${topic}". Added ${result.addedCount} new words and skipped ${result.skippedCount} duplicates.`
+  } catch (error) {
+    expansionStatusTone.value = 'error'
+    expansionStatus.value = error instanceof Error ? error.message : 'Vocabulary expansion failed.'
+  }
 }
 </script>
 
@@ -84,10 +109,65 @@ function resetAllProgress() {
         </div>
       </SectionCard>
     </div>
+
+    <SectionCard
+      title="Vocabulary expansion"
+      subtitle="Request 10 new TOEIC-level words from the backend API and append them to the local vocabulary set."
+      style="margin-top: 18px"
+    >
+      <div class="field">
+        <label for="expansion-topic">Topic</label>
+        <input
+          id="expansion-topic"
+          v-model.trim="expansionTopic"
+          placeholder="Business Negotiations"
+          type="text"
+        />
+      </div>
+      <p class="muted expansion-note">
+        Start the backend with `npm run dev:api` so the frontend can call `/api/vocabulary/expand` during development.
+      </p>
+      <div class="button-row" style="margin-top: 18px">
+        <button class="button" :disabled="isExpanding" @click="handleVocabularyExpansion()">
+          {{ isExpanding ? 'Expanding vocabulary...' : 'Expand vocabulary' }}
+        </button>
+      </div>
+      <p
+        v-if="expansionStatus"
+        class="expansion-status"
+        :class="`expansion-status--${expansionStatusTone}`"
+      >
+        {{ expansionStatus }}
+      </p>
+    </SectionCard>
   </section>
 </template>
 
 <style scoped>
+.expansion-note {
+  margin: 14px 0 0;
+}
+
+.expansion-status {
+  margin: 16px 0 0;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--border-radius-md);
+  background: var(--surface);
+}
+
+.expansion-status--success {
+  border-color: var(--success);
+  background: var(--success-soft);
+  color: var(--success);
+}
+
+.expansion-status--error {
+  border-color: var(--danger);
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
 .theme-setting {
   display: grid;
   gap: 10px;
