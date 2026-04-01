@@ -1,0 +1,722 @@
+[
+  {
+    "id": "TOEIC-0001",
+    "word": "negotiate",
+    "translation_zh_TW": "協商；談判",
+    "part_of_speech": "verb",
+    "example_sentence": "The manager negotiated a better price with the supplier.",
+    "difficulty": "medium",
+    "tags": ["business", "contract"]
+  },
+  {
+    "id": "TOEIC-0002",
+    "word": "deadline",
+    "translation_zh_TW": "截止日期",
+    "part_of_speech": "noun",
+    "example_sentence": "Please submit the report before the deadline.",
+    "difficulty": "easy",
+    "tags": ["schedule", "office"]
+  },
+  {
+    "id": "TOEIC-0003",
+    "word": "efficient",
+    "translation_zh_TW": "有效率的",
+    "part_of_speech": "adjective",
+    "example_sentence": "Our new system is more efficient than the old one.",
+    "difficulty": "easy",
+    "tags": ["performance", "office"]
+  },
+  {
+    "id": "TOEIC-0004",
+    "word": "invoice",
+    "translation_zh_TW": "發票",
+    "part_of_speech": "noun",
+    "example_sentence": "The accounting team processed the invoice this morning.",
+    "difficulty": "medium",
+    "tags": ["finance", "document"]
+  },
+  {
+    "id": "TOEIC-0005",
+    "word": "postpone",
+    "translation_zh_TW": "延期",
+    "part_of_speech": "verb",
+    "example_sentence": "The company decided to postpone the product launch.",
+    "difficulty": "medium",
+    "tags": ["meeting", "schedule"]
+  },
+  {
+    "id": "TOEIC-0006",
+    "word": "reliable",
+    "translation_zh_TW": "可靠的",
+    "part_of_speech": "adjective",
+    "example_sentence": "She is a reliable assistant who rarely makes mistakes.",
+    "difficulty": "easy",
+    "tags": ["people", "evaluation"]
+  },
+  {
+    "id": "TOEIC-0007",
+    "word": "shipment",
+    "translation_zh_TW": "貨運；出貨",
+    "part_of_speech": "noun",
+    "example_sentence": "The shipment will arrive at the warehouse tomorrow.",
+    "difficulty": "medium",
+    "tags": ["logistics", "warehouse"]
+  },
+  {
+    "id": "TOEIC-0008",
+    "word": "approve",
+    "translation_zh_TW": "批准",
+    "part_of_speech": "verb",
+    "example_sentence": "The director approved the budget proposal.",
+    "difficulty": "easy",
+    "tags": ["management", "finance"]
+  },
+  {
+    "id": "TOEIC-0009",
+    "word": "temporary",
+    "translation_zh_TW": "暫時的",
+    "part_of_speech": "adjective",
+    "example_sentence": "The staff will work in a temporary office during renovations.",
+    "difficulty": "medium",
+    "tags": ["office", "facility"]
+  },
+  {
+    "id": "TOEIC-0010",
+    "word": "conference",
+    "translation_zh_TW": "會議；研討會",
+    "part_of_speech": "noun",
+    "example_sentence": "Many executives attended the international conference.",
+    "difficulty": "easy",
+    "tags": ["meeting", "event"]
+  },
+  {
+    "id": "TOEIC-0011",
+    "word": "register",
+    "translation_zh_TW": "登記；註冊",
+    "part_of_speech": "verb",
+    "example_sentence": "Participants must register online before Friday.",
+    "difficulty": "easy",
+    "tags": ["event", "process"]
+  },
+  {
+    "id": "TOEIC-0012",
+    "word": "available",
+    "translation_zh_TW": "可取得的；有空的",
+    "part_of_speech": "adjective",
+    "example_sentence": "The meeting room is available after 3 p.m.",
+    "difficulty": "easy",
+    "tags": ["schedule", "office"]
+  },
+  {
+    "id": "TOEIC-0013",
+    "word": "appointment",
+    "translation_zh_TW": "約會；預約",
+    "part_of_speech": "noun",
+    "example_sentence": "She confirmed her appointment with the client by email.",
+    "difficulty": "easy",
+    "tags": ["schedule", "client"]
+  },
+  {
+    "id": "TOEIC-0014",
+    "word": "arrange",
+    "translation_zh_TW": "安排",
+    "part_of_speech": "verb",
+    "example_sentence": "We need to arrange transportation for the visitors.",
+    "difficulty": "easy",
+    "tags": ["planning", "travel"]
+  },
+  {
+    "id": "TOEIC-0015",
+    "word": "annual",
+    "translation_zh_TW": "年度的",
+    "part_of_speech": "adjective",
+    "example_sentence": "The annual sales conference will be held in July.",
+    "difficulty": "easy",
+    "tags": ["calendar", "event"]
+  },
+  {
+    "id": "TOEIC-0016",
+    "word": "application",
+    "translation_zh_TW": "申請；申請書",
+    "part_of_speech": "noun",
+    "example_sentence": "Please attach your resume to the job application.",
+    "difficulty": "medium",
+    "tags": ["hr", "document"]
+  },
+  {
+    "id": "TOEIC-0017",
+    "word": "assist",
+    "translation_zh_TW": "協助",
+    "part_of_speech": "verb",
+    "example_sentence": "A technician will assist you with the installation.",
+    "difficulty": "easy",
+    "tags": ["support", "service"]
+  },
+  {
+    "id": "TOEIC-0018",
+    "word": "accurate",
+    "translation_zh_TW": "準確的",
+    "part_of_speech": "adjective",
+    "example_sentence": "The report must contain accurate financial figures.",
+    "difficulty": "medium",
+    "tags": ["quality", "finance"]
+  },
+  {
+    "id": "TOEIC-0019",
+    "word": "branch",
+    "translation_zh_TW": "分公司；分行",
+    "part_of_speech": "noun",
+    "example_sentence": "The company opened a new branch in Taichung.",
+    "difficulty": "easy",
+    "tags": ["company", "location"]
+  },
+  {
+    "id": "TOEIC-0020",
+    "word": "boost",
+    "translation_zh_TW": "提升；增加",
+    "part_of_speech": "verb",
+    "example_sentence": "The campaign boosted sales during the holiday season.",
+    "difficulty": "medium",
+    "tags": ["marketing", "sales"]
+  },
+  {
+    "id": "TOEIC-0021",
+    "word": "brief",
+    "translation_zh_TW": "簡短的",
+    "part_of_speech": "adjective",
+    "example_sentence": "Please give the director a brief update before lunch.",
+    "difficulty": "easy",
+    "tags": ["communication", "meeting"]
+  },
+  {
+    "id": "TOEIC-0022",
+    "word": "budget",
+    "translation_zh_TW": "預算",
+    "part_of_speech": "noun",
+    "example_sentence": "The marketing team submitted its budget for next quarter.",
+    "difficulty": "easy",
+    "tags": ["finance", "planning"]
+  },
+  {
+    "id": "TOEIC-0023",
+    "word": "cancel",
+    "translation_zh_TW": "取消",
+    "part_of_speech": "verb",
+    "example_sentence": "We may have to cancel the afternoon flight because of the storm.",
+    "difficulty": "easy",
+    "tags": ["travel", "schedule"]
+  },
+  {
+    "id": "TOEIC-0024",
+    "word": "convenient",
+    "translation_zh_TW": "方便的",
+    "part_of_speech": "adjective",
+    "example_sentence": "Is Friday morning convenient for your team?",
+    "difficulty": "easy",
+    "tags": ["schedule", "communication"]
+  },
+  {
+    "id": "TOEIC-0025",
+    "word": "candidate",
+    "translation_zh_TW": "候選人",
+    "part_of_speech": "noun",
+    "example_sentence": "The committee interviewed three candidates for the position.",
+    "difficulty": "medium",
+    "tags": ["hr", "recruitment"]
+  },
+  {
+    "id": "TOEIC-0026",
+    "word": "confirm",
+    "translation_zh_TW": "確認",
+    "part_of_speech": "verb",
+    "example_sentence": "Please confirm your reservation by tomorrow afternoon.",
+    "difficulty": "easy",
+    "tags": ["travel", "booking"]
+  },
+  {
+    "id": "TOEIC-0027",
+    "word": "confidential",
+    "translation_zh_TW": "機密的",
+    "part_of_speech": "adjective",
+    "example_sentence": "Employee records must remain confidential at all times.",
+    "difficulty": "medium",
+    "tags": ["hr", "compliance"]
+  },
+  {
+    "id": "TOEIC-0028",
+    "word": "contract",
+    "translation_zh_TW": "合約",
+    "part_of_speech": "noun",
+    "example_sentence": "The supplier signed the contract after reviewing the terms.",
+    "difficulty": "easy",
+    "tags": ["legal", "business"]
+  },
+  {
+    "id": "TOEIC-0029",
+    "word": "coordinate",
+    "translation_zh_TW": "協調",
+    "part_of_speech": "verb",
+    "example_sentence": "She will coordinate the training session for new staff.",
+    "difficulty": "medium",
+    "tags": ["project", "team"]
+  },
+  {
+    "id": "TOEIC-0030",
+    "word": "competitive",
+    "translation_zh_TW": "有競爭力的",
+    "part_of_speech": "adjective",
+    "example_sentence": "We need a competitive price to win the bid.",
+    "difficulty": "medium",
+    "tags": ["sales", "strategy"]
+  },
+  {
+    "id": "TOEIC-0031",
+    "word": "customer",
+    "translation_zh_TW": "顧客",
+    "part_of_speech": "noun",
+    "example_sentence": "Customer feedback helped us improve the service.",
+    "difficulty": "easy",
+    "tags": ["service", "sales"]
+  },
+  {
+    "id": "TOEIC-0032",
+    "word": "deliver",
+    "translation_zh_TW": "遞送；交付",
+    "part_of_speech": "verb",
+    "example_sentence": "The courier will deliver the package before noon.",
+    "difficulty": "easy",
+    "tags": ["logistics", "service"]
+  },
+  {
+    "id": "TOEIC-0033",
+    "word": "delayed",
+    "translation_zh_TW": "延誤的",
+    "part_of_speech": "adjective",
+    "example_sentence": "The delayed train affected several business travelers.",
+    "difficulty": "easy",
+    "tags": ["travel", "transport"]
+  },
+  {
+    "id": "TOEIC-0034",
+    "word": "department",
+    "translation_zh_TW": "部門",
+    "part_of_speech": "noun",
+    "example_sentence": "The finance department approved the purchase order.",
+    "difficulty": "easy",
+    "tags": ["company", "organization"]
+  },
+  {
+    "id": "TOEIC-0035",
+    "word": "distribute",
+    "translation_zh_TW": "分發；配送",
+    "part_of_speech": "verb",
+    "example_sentence": "Please distribute the meeting agenda before the presentation.",
+    "difficulty": "medium",
+    "tags": ["office", "logistics"]
+  },
+  {
+    "id": "TOEIC-0036",
+    "word": "durable",
+    "translation_zh_TW": "耐用的",
+    "part_of_speech": "adjective",
+    "example_sentence": "The manufacturer is known for making durable office chairs.",
+    "difficulty": "medium",
+    "tags": ["product", "quality"]
+  },
+  {
+    "id": "TOEIC-0037",
+    "word": "employee",
+    "translation_zh_TW": "員工",
+    "part_of_speech": "noun",
+    "example_sentence": "Every employee must complete the safety training course.",
+    "difficulty": "easy",
+    "tags": ["hr", "workplace"]
+  },
+  {
+    "id": "TOEIC-0038",
+    "word": "evaluate",
+    "translation_zh_TW": "評估",
+    "part_of_speech": "verb",
+    "example_sentence": "The committee will evaluate the proposals next week.",
+    "difficulty": "medium",
+    "tags": ["analysis", "project"]
+  },
+  {
+    "id": "TOEIC-0039",
+    "word": "extensive",
+    "translation_zh_TW": "廣泛的",
+    "part_of_speech": "adjective",
+    "example_sentence": "The museum has an extensive collection of regional art.",
+    "difficulty": "hard",
+    "tags": ["description", "travel"]
+  },
+  {
+    "id": "TOEIC-0040",
+    "word": "equipment",
+    "translation_zh_TW": "設備",
+    "part_of_speech": "noun",
+    "example_sentence": "New equipment was installed in the laboratory last month.",
+    "difficulty": "easy",
+    "tags": ["facility", "operations"]
+  },
+  {
+    "id": "TOEIC-0041",
+    "word": "forecast",
+    "translation_zh_TW": "預測",
+    "part_of_speech": "verb",
+    "example_sentence": "Analysts forecast stronger demand in the second half of the year.",
+    "difficulty": "medium",
+    "tags": ["finance", "planning"]
+  },
+  {
+    "id": "TOEIC-0042",
+    "word": "flexible",
+    "translation_zh_TW": "有彈性的；靈活的",
+    "part_of_speech": "adjective",
+    "example_sentence": "The company offers flexible work arrangements for parents.",
+    "difficulty": "easy",
+    "tags": ["hr", "policy"]
+  },
+  {
+    "id": "TOEIC-0043",
+    "word": "facility",
+    "translation_zh_TW": "設施",
+    "part_of_speech": "noun",
+    "example_sentence": "Visitors must wear badges inside the research facility.",
+    "difficulty": "medium",
+    "tags": ["building", "operations"]
+  },
+  {
+    "id": "TOEIC-0044",
+    "word": "generate",
+    "translation_zh_TW": "產生；創造",
+    "part_of_speech": "verb",
+    "example_sentence": "The campaign generated a large number of online inquiries.",
+    "difficulty": "medium",
+    "tags": ["marketing", "data"]
+  },
+  {
+    "id": "TOEIC-0045",
+    "word": "generous",
+    "translation_zh_TW": "慷慨的；優渥的",
+    "part_of_speech": "adjective",
+    "example_sentence": "The company offers a generous travel allowance for overseas assignments.",
+    "difficulty": "medium",
+    "tags": ["benefits", "finance"]
+  },
+  {
+    "id": "TOEIC-0046",
+    "word": "headquarters",
+    "translation_zh_TW": "總部",
+    "part_of_speech": "noun",
+    "example_sentence": "The new policy was announced by headquarters this morning.",
+    "difficulty": "medium",
+    "tags": ["company", "management"]
+  },
+  {
+    "id": "TOEIC-0047",
+    "word": "hire",
+    "translation_zh_TW": "聘用",
+    "part_of_speech": "verb",
+    "example_sentence": "The restaurant plans to hire more staff before summer.",
+    "difficulty": "easy",
+    "tags": ["hr", "recruitment"]
+  },
+  {
+    "id": "TOEIC-0048",
+    "word": "impressive",
+    "translation_zh_TW": "令人印象深刻的",
+    "part_of_speech": "adjective",
+    "example_sentence": "Her presentation made an impressive first impression on the client.",
+    "difficulty": "medium",
+    "tags": ["presentation", "evaluation"]
+  },
+  {
+    "id": "TOEIC-0049",
+    "word": "inventory",
+    "translation_zh_TW": "庫存",
+    "part_of_speech": "noun",
+    "example_sentence": "The warehouse manager checks inventory every Friday.",
+    "difficulty": "medium",
+    "tags": ["warehouse", "operations"]
+  },
+  {
+    "id": "TOEIC-0050",
+    "word": "install",
+    "translation_zh_TW": "安裝",
+    "part_of_speech": "verb",
+    "example_sentence": "A technician will install the software update tonight.",
+    "difficulty": "easy",
+    "tags": ["technology", "service"]
+  },
+  {
+    "id": "TOEIC-0051",
+    "word": "limited",
+    "translation_zh_TW": "有限的",
+    "part_of_speech": "adjective",
+    "example_sentence": "Seating is limited, so please reserve early.",
+    "difficulty": "easy",
+    "tags": ["event", "booking"]
+  },
+  {
+    "id": "TOEIC-0052",
+    "word": "license",
+    "translation_zh_TW": "執照；許可證",
+    "part_of_speech": "noun",
+    "example_sentence": "The contractor renewed his business license last month.",
+    "difficulty": "medium",
+    "tags": ["legal", "compliance"]
+  },
+  {
+    "id": "TOEIC-0053",
+    "word": "maintain",
+    "translation_zh_TW": "維持；保養",
+    "part_of_speech": "verb",
+    "example_sentence": "Regular checks help maintain the machines in good condition.",
+    "difficulty": "medium",
+    "tags": ["operations", "quality"]
+  },
+  {
+    "id": "TOEIC-0054",
+    "word": "modern",
+    "translation_zh_TW": "現代化的",
+    "part_of_speech": "adjective",
+    "example_sentence": "The hotel lobby has a modern design and bright lighting.",
+    "difficulty": "easy",
+    "tags": ["facility", "travel"]
+  },
+  {
+    "id": "TOEIC-0055",
+    "word": "merchandise",
+    "translation_zh_TW": "商品",
+    "part_of_speech": "noun",
+    "example_sentence": "New merchandise will be displayed near the store entrance.",
+    "difficulty": "medium",
+    "tags": ["retail", "sales"]
+  },
+  {
+    "id": "TOEIC-0056",
+    "word": "notify",
+    "translation_zh_TW": "通知",
+    "part_of_speech": "verb",
+    "example_sentence": "Please notify the team if the schedule changes.",
+    "difficulty": "easy",
+    "tags": ["communication", "office"]
+  },
+  {
+    "id": "TOEIC-0057",
+    "word": "outstanding",
+    "translation_zh_TW": "未完成的；傑出的",
+    "part_of_speech": "adjective",
+    "example_sentence": "Several outstanding invoices still need approval.",
+    "difficulty": "hard",
+    "tags": ["finance", "accounting"]
+  },
+  {
+    "id": "TOEIC-0058",
+    "word": "opportunity",
+    "translation_zh_TW": "機會",
+    "part_of_speech": "noun",
+    "example_sentence": "The training program offers a good opportunity for promotion.",
+    "difficulty": "medium",
+    "tags": ["career", "development"]
+  },
+  {
+    "id": "TOEIC-0059",
+    "word": "participate",
+    "translation_zh_TW": "參與",
+    "part_of_speech": "verb",
+    "example_sentence": "All employees are encouraged to participate in the survey.",
+    "difficulty": "medium",
+    "tags": ["hr", "event"]
+  },
+  {
+    "id": "TOEIC-0060",
+    "word": "practical",
+    "translation_zh_TW": "實用的",
+    "part_of_speech": "adjective",
+    "example_sentence": "The workshop gave practical advice for customer support teams.",
+    "difficulty": "medium",
+    "tags": ["training", "support"]
+  },
+  {
+    "id": "TOEIC-0061",
+    "word": "promotion",
+    "translation_zh_TW": "促銷；晉升",
+    "part_of_speech": "noun",
+    "example_sentence": "The supermarket launched a weekend promotion on beverages.",
+    "difficulty": "medium",
+    "tags": ["marketing", "retail"]
+  },
+  {
+    "id": "TOEIC-0062",
+    "word": "purchase",
+    "translation_zh_TW": "購買",
+    "part_of_speech": "verb",
+    "example_sentence": "Customers can purchase tickets through the mobile app.",
+    "difficulty": "easy",
+    "tags": ["sales", "retail"]
+  },
+  {
+    "id": "TOEIC-0063",
+    "word": "qualified",
+    "translation_zh_TW": "合格的；有資格的",
+    "part_of_speech": "adjective",
+    "example_sentence": "Only qualified applicants will be invited for interviews.",
+    "difficulty": "medium",
+    "tags": ["hr", "recruitment"]
+  },
+  {
+    "id": "TOEIC-0064",
+    "word": "refund",
+    "translation_zh_TW": "退款",
+    "part_of_speech": "noun",
+    "example_sentence": "Passengers may request a refund if the tour is canceled.",
+    "difficulty": "medium",
+    "tags": ["service", "travel"]
+  },
+  {
+    "id": "TOEIC-0065",
+    "word": "reserve",
+    "translation_zh_TW": "預訂；保留",
+    "part_of_speech": "verb",
+    "example_sentence": "We should reserve a larger room for the workshop.",
+    "difficulty": "easy",
+    "tags": ["booking", "event"]
+  },
+  {
+    "id": "TOEIC-0066",
+    "word": "regional",
+    "translation_zh_TW": "地區的",
+    "part_of_speech": "adjective",
+    "example_sentence": "Regional managers will attend the strategy meeting next month.",
+    "difficulty": "medium",
+    "tags": ["management", "organization"]
+  },
+  {
+    "id": "TOEIC-0067",
+    "word": "receipt",
+    "translation_zh_TW": "收據",
+    "part_of_speech": "noun",
+    "example_sentence": "Please keep the receipt for reimbursement purposes.",
+    "difficulty": "easy",
+    "tags": ["finance", "document"]
+  },
+  {
+    "id": "TOEIC-0068",
+    "word": "replace",
+    "translation_zh_TW": "更換；取代",
+    "part_of_speech": "verb",
+    "example_sentence": "The company will replace outdated computers this quarter.",
+    "difficulty": "easy",
+    "tags": ["equipment", "operations"]
+  },
+  {
+    "id": "TOEIC-0069",
+    "word": "secure",
+    "translation_zh_TW": "安全的；獲得",
+    "part_of_speech": "adjective",
+    "example_sentence": "The building offers secure parking for employees.",
+    "difficulty": "medium",
+    "tags": ["facility", "security"]
+  },
+  {
+    "id": "TOEIC-0070",
+    "word": "schedule",
+    "translation_zh_TW": "行程；時程表",
+    "part_of_speech": "noun",
+    "example_sentence": "According to the schedule, the seminar starts at nine.",
+    "difficulty": "easy",
+    "tags": ["planning", "event"]
+  },
+  {
+    "id": "TOEIC-0071",
+    "word": "submit",
+    "translation_zh_TW": "提交",
+    "part_of_speech": "verb",
+    "example_sentence": "All expense claims must be submitted by Monday.",
+    "difficulty": "easy",
+    "tags": ["office", "finance"]
+  },
+  {
+    "id": "TOEIC-0072",
+    "word": "suitable",
+    "translation_zh_TW": "適合的",
+    "part_of_speech": "adjective",
+    "example_sentence": "This location is suitable for large company events.",
+    "difficulty": "easy",
+    "tags": ["facility", "event"]
+  },
+  {
+    "id": "TOEIC-0073",
+    "word": "supervisor",
+    "translation_zh_TW": "主管",
+    "part_of_speech": "noun",
+    "example_sentence": "Ask your supervisor to sign the training request form.",
+    "difficulty": "medium",
+    "tags": ["hr", "management"]
+  },
+  {
+    "id": "TOEIC-0074",
+    "word": "transport",
+    "translation_zh_TW": "運送；運輸",
+    "part_of_speech": "verb",
+    "example_sentence": "The company transports fresh products overnight.",
+    "difficulty": "medium",
+    "tags": ["logistics", "delivery"]
+  },
+  {
+    "id": "TOEIC-0075",
+    "word": "thorough",
+    "translation_zh_TW": "徹底的",
+    "part_of_speech": "adjective",
+    "example_sentence": "The audit requires a thorough review of all contracts.",
+    "difficulty": "hard",
+    "tags": ["compliance", "quality"]
+  },
+  {
+    "id": "TOEIC-0076",
+    "word": "vendor",
+    "translation_zh_TW": "供應商；販售者",
+    "part_of_speech": "noun",
+    "example_sentence": "The event organizer selected a local vendor for catering.",
+    "difficulty": "medium",
+    "tags": ["procurement", "event"]
+  },
+  {
+    "id": "TOEIC-0077",
+    "word": "verify",
+    "translation_zh_TW": "核實；驗證",
+    "part_of_speech": "verb",
+    "example_sentence": "Please verify the shipping address before processing the order.",
+    "difficulty": "medium",
+    "tags": ["quality", "process"]
+  },
+  {
+    "id": "TOEIC-0078",
+    "word": "valuable",
+    "translation_zh_TW": "有價值的",
+    "part_of_speech": "adjective",
+    "example_sentence": "The workshop provided valuable insight into customer behavior.",
+    "difficulty": "easy",
+    "tags": ["training", "analysis"]
+  },
+  {
+    "id": "TOEIC-0079",
+    "word": "warehouse",
+    "translation_zh_TW": "倉庫",
+    "part_of_speech": "noun",
+    "example_sentence": "The new warehouse can store twice as much inventory.",
+    "difficulty": "easy",
+    "tags": ["logistics", "operations"]
+  },
+  {
+    "id": "TOEIC-0080",
+    "word": "withdraw",
+    "translation_zh_TW": "提領；撤回",
+    "part_of_speech": "verb",
+    "example_sentence": "The customer decided to withdraw the complaint after the refund.",
+    "difficulty": "hard",
+    "tags": ["banking", "service"]
+  }
+]
