@@ -35,3 +35,19 @@ export async function fetchImageForWord(imagePrompt: string): Promise<string> {
     return ''
   }
 }
+
+export async function fetchImagesInBatch(prompts: string[]): Promise<string[]> {
+  try {
+    const response = await fetch('/api/vocabulary/images', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompts }),
+    })
+
+    if (!response.ok) return prompts.map(() => '')
+
+    return (await response.json()) as string[]
+  } catch {
+    return prompts.map(() => '')
+  }
+}

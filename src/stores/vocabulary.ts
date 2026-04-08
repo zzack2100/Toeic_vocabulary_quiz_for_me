@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { requestVocabularyExpansion, fetchImageForWord } from '../services/vocabularyExpansionApi'
+import { requestVocabularyExpansion, fetchImagesInBatch } from '../services/vocabularyExpansionApi'
 import { fetchVocabulary, fetchWordsFromCloud, syncWordsToCloud } from '../services/vocabularyService'
 import { storageService } from '../services/storageService'
 import { createDefaultMemoryMetadata } from '../utils/spacedRepetition'
@@ -172,21 +172,26 @@ export const useVocabularyStore = defineStore('vocabulary', {
 
         this.expansionProgress = 30
 
-        // Step 2: Fetch images one by one
+        // Step 2: Fetch images in parallel (batch)
         const wordsWithPrompts = newWords.filter((w) => w.image_prompt)
-        for (let i = 0; i < wordsWithPrompts.length; i++) {
-          const w = wordsWithPrompts[i]
-          this.expansionStatus = `Step 2/3: Fetching image ${i + 1}/${wordsWithPrompts.length} — "${w.word}"…`
-          this.expansionProgress = 30 + Math.round(((i + 1) / wordsWithPrompts.length) * 55)
+        this.expansionStatus = `Step 2/3: Fetching ${wordsWithPrompts.length} images in parallel…`
+        this.expansionProgress = 35
 
-          const imageUrl = await fetchImageForWord(w.image_prompt!)
-          if (imageUrl) {
-            w.image_url = imageUrl
-            // Also update in nextCustomWords
-            const stored = nextCustomWords.find((cw) => cw.id === w.id)
-            if (stored) stored.image_url = imageUrl
+        if (wordsWithPrompts.length > 0) {
+          const prompts = wordsWithPrompts.map((w) => w.image_prompt!)
+          const imageUrls = await fetchImagesInBatch(prompts)
+
+          for (let i = 0; i < wordsWithPrompts.length; i++) {
+            const url = imageUrls[i]
+            if (url) {
+              wordsWithPrompts[i].image_url = url
+              const stored = nextCustomWords.find((cw) => cw.id === wordsWithPrompts[i].id)
+              if (stored) stored.image_url = url
+            }
           }
         }
+
+        this.expansionProgress = 85
 
         // Step 3: Save & sync
         this.expansionStatus = 'Step 3/3: Saving and syncing…'

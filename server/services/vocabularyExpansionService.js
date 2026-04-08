@@ -5,10 +5,14 @@ async function fetchUnsplashImageUrl(query) {
   const accessKey = process.env.UNSPLASH_ACCESS_KEY
   if (!accessKey) return ''
 
+  const controller = new AbortController()
+  const timeout = setTimeout(() => controller.abort(), 3000)
+
   try {
     const url = `https://api.unsplash.com/search/photos?query=${encodeURIComponent(query)}&per_page=1&orientation=landscape`
     const response = await fetch(url, {
       headers: { Authorization: `Client-ID ${accessKey}` },
+      signal: controller.signal,
     })
 
     if (!response.ok) return ''
@@ -17,6 +21,8 @@ async function fetchUnsplashImageUrl(query) {
     return data.results?.[0]?.urls?.small ?? ''
   } catch {
     return ''
+  } finally {
+    clearTimeout(timeout)
   }
 }
 
@@ -414,7 +420,7 @@ async function expandVocabularyWithOpenAi(topic) {
   return parseGeneratedVocabulary(content, topic)
 }
 
-export { fetchUnsplashImageUrl }
+export { fetchUnsplashImageUrl, resolveImageUrls }
 
 export function buildLlmRequest(topic) {
   return {
