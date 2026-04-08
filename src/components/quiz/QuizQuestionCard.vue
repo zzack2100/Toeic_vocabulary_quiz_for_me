@@ -90,6 +90,15 @@ function getOptionStateIcon(option: string) {
 
   return ''
 }
+
+function speakWord() {
+  if (!window.speechSynthesis) return
+  window.speechSynthesis.cancel()
+  const utterance = new SpeechSynthesisUtterance(props.question.prompt)
+  utterance.lang = 'en-US'
+  utterance.rate = 0.9
+  window.speechSynthesis.speak(utterance)
+}
 </script>
 
 <template>
@@ -101,7 +110,15 @@ function getOptionStateIcon(option: string) {
           <span v-if="partOfSpeech" class="question-card__part-of-speech">{{ partOfSpeech }}</span>
           <p v-if="definition" class="question-card__definition">{{ definition }}</p>
         </div>
-        <span class="question-card__word">{{ question.prompt }}</span>
+        <div class="question-card__word-row">
+          <span class="question-card__word">{{ question.prompt }}</span>
+          <button
+            type="button"
+            class="speak-btn"
+            aria-label="Listen to pronunciation"
+            @click="speakWord"
+          >🔊</button>
+        </div>
         <p v-if="exampleSentence" class="question-card__example">{{ exampleSentence }}</p>
       </div>
     </div>
@@ -183,6 +200,43 @@ function getOptionStateIcon(option: string) {
   font-weight: 700;
   line-height: 0.94;
   letter-spacing: -0.04em;
+}
+
+.question-card__word-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.speak-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text-muted);
+  font-size: 1.1rem;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition:
+    background-color var(--transition-speed-fast) ease,
+    border-color var(--transition-speed-fast) ease,
+    transform var(--transition-speed-fast) ease;
+}
+
+.speak-btn:hover {
+  background: var(--surface-hover);
+  border-color: var(--accent);
+  transform: scale(1.1);
+}
+
+.speak-btn:active {
+  transform: scale(0.95);
 }
 
 .question-card__example {
