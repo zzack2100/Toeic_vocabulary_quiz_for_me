@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import { loginWithGoogle } from '../services/authApi'
 
 const TOKEN_KEY = 'toeic.auth.token'
 const EMAIL_KEY = 'toeic.auth.email'
@@ -28,6 +29,11 @@ export const useAuthStore = defineStore('auth', {
       this.userEmail = null
       localStorage.removeItem(TOKEN_KEY)
       localStorage.removeItem(EMAIL_KEY)
+    },
+    async handleGoogleAuth(credential: string) {
+      const data = await loginWithGoogle(credential)
+      const payload = JSON.parse(atob(data.token!.split('.')[1]))
+      this.setSession(data.token!, payload.email)
     },
   },
 })
