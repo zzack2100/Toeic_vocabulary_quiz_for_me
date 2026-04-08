@@ -12,6 +12,7 @@ const props = withDefaults(
   exampleSentence?: string
   correctAnswer?: string
   showFeedback?: boolean
+  imageUrl?: string
 }>(),
   {
     partOfSpeech: '',
@@ -19,6 +20,7 @@ const props = withDefaults(
     exampleSentence: '',
     correctAnswer: '',
     showFeedback: false,
+    imageUrl: '',
   },
 )
 
@@ -105,6 +107,9 @@ function speakWord() {
   <article class="question-card">
     <div class="question-card__meta">
       <span class="badge">Question {{ questionNumber }} / {{ totalQuestions }}</span>
+      <div v-if="imageUrl" class="question-card__image-container">
+        <img :src="imageUrl" :alt="question.prompt" class="question-card__image" loading="lazy" />
+      </div>
       <div class="question-card__copy">
         <div v-if="partOfSpeech || definition" class="question-card__supporting">
           <span v-if="partOfSpeech" class="question-card__part-of-speech">{{ partOfSpeech }}</span>
@@ -165,6 +170,21 @@ function speakWord() {
 .question-card__copy {
   display: grid;
   gap: 12px;
+}
+
+.question-card__image-container {
+  overflow: hidden;
+  border-radius: var(--border-radius-md);
+  max-width: 400px;
+  border: 1px solid var(--border);
+}
+
+.question-card__image {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
 }
 
 .question-card__supporting {

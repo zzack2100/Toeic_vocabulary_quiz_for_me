@@ -20,6 +20,8 @@ export interface VocabularySeed {
   example_sentence: string
   difficulty?: 'easy' | 'medium' | 'hard'
   tags?: string[]
+  image_url?: string
+  image_prompt?: string
 }
 
 export interface ToeicWord extends VocabularySeed {

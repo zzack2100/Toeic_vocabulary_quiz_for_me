@@ -10,6 +10,7 @@ Every item must strictly follow this schema:
   "translation_zh_TW": "string",
   "part_of_speech": "string",
   "example_sentence": "string",
+  "image_prompt": "string — a short, concrete English phrase (2-5 words) describing a scene or object that visually represents this word, suitable as an Unsplash search query (e.g. 'office meeting room', 'airplane boarding gate')",
   "difficulty": "medium",
   "tags": ["topic", "other relevant tags"]
 }
@@ -18,6 +19,7 @@ Rules:
 - Example sentences must be natural workplace or travel contexts.
 - translation_zh_TW must use Traditional Chinese.
 - difficulty must always be exactly "medium".
+- image_prompt must be a simple, concrete visual description — no abstract concepts.
 - tags must include the requested topic string exactly as provided by the user.
 - Do not include markdown, commentary, numbering, or extra keys.
 - Avoid duplicate words or near-synonym duplicates in the same batch.`
@@ -265,6 +267,7 @@ function scoreEntryForTopic(entry, normalizedTopic) {
 }
 
 function buildVocabularyItem(entry, topic) {
+  const imagePrompt = entry.image_prompt || entry.word
   return {
     id: randomUUID(),
     word: entry.word,
@@ -273,6 +276,8 @@ function buildVocabularyItem(entry, topic) {
     example_sentence: entry.example_sentence,
     difficulty: 'medium',
     tags: Array.from(new Set([topic, ...entry.tags])),
+    image_prompt: imagePrompt,
+    image_url: `https://source.unsplash.com/featured/400x300/?${encodeURIComponent(imagePrompt)}`,
   }
 }
 
@@ -323,6 +328,8 @@ function normalizeGeneratedItem(item, topic) {
     throw new Error('Generated item is missing required string fields.')
   }
 
+  const imagePrompt = typeof item.image_prompt === 'string' ? item.image_prompt.trim() : word
+
   return {
     id: randomUUID(),
     word,
@@ -331,6 +338,8 @@ function normalizeGeneratedItem(item, topic) {
     example_sentence: exampleSentence,
     difficulty: 'medium',
     tags: Array.from(new Set([topic, ...rawTags.map((tag) => tag.trim())])),
+    image_prompt: imagePrompt,
+    image_url: `https://source.unsplash.com/featured/400x300/?${encodeURIComponent(imagePrompt)}`,
   }
 }
 

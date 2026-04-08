@@ -99,6 +99,7 @@ function confirmAndSubmit() {
         :selected-answer="selectedAnswer"
         :part-of-speech="currentWord?.part_of_speech"
         :example-sentence="currentWord?.example_sentence"
+        :image-url="currentWord?.image_url"
         @select="quizStore.answerQuestion(currentQuestion.wordId, $event)"
       />
 

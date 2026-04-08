@@ -43,6 +43,8 @@ export async function syncWordsToCloud(words: ToeicWord[], token: string): Promi
   const payload = words.map((w) => ({
     word: w.word,
     translation: w.translation_zh_TW,
+    image_url: w.image_url ?? '',
+    image_prompt: w.image_prompt ?? '',
     memory: {
       times_seen: w.memory.times_seen,
       times_correct: w.memory.times_correct,

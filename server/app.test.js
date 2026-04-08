@@ -6,6 +6,8 @@ const EXPECTED_KEYS = [
   'difficulty',
   'example_sentence',
   'id',
+  'image_prompt',
+  'image_url',
   'part_of_speech',
   'tags',
   'translation_zh_TW',
