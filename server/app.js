@@ -23,6 +23,14 @@ const authLimiter = rateLimit({
   message: { error: 'Too many attempts. Please try again after 15 minutes.' },
 })
 
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many requests. Please try again later.' },
+})
+
 const app = express()
 
 app.use(helmet())
@@ -44,6 +52,7 @@ app.get('/api/health', (_request, response) => {
   response.json({ status: 'ok' })
 })
 
+app.use('/api', apiLimiter)
 app.use('/api/auth', authLimiter, authRouter)
 app.use('/api/words', wordsRouter)
 app.use('/api/vocabulary', vocabularyRouter)
