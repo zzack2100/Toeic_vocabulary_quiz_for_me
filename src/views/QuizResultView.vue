@@ -12,6 +12,11 @@ const quizStore = useQuizStore()
 const vocabularyStore = useVocabularyStore()
 const activeFilter = ref<'all' | 'incorrect' | 'correct'>('all')
 
+function handleStartNewSession() {
+  quizStore.startNewSession()
+  router.push('/quiz/daily')
+}
+
 const showRedirectNotice = computed(() => route.query.redirect === 'daily-locked')
 
 onMounted(() => {
@@ -136,15 +141,16 @@ const summaryItems = computed(() => [
     <div class="submitted-banner" role="status" aria-live="polite">
       <span class="submitted-banner__icon" aria-hidden="true">•</span>
       <div class="submitted-banner__copy">
-        <strong class="submitted-banner__title">Today&apos;s quiz is locked after submission.</strong>
+        <strong class="submitted-banner__title">Session complete!</strong>
         <p class="submitted-banner__text">
-          Re-entering the daily quiz will bring you back here so progress, spacing intervals, and mistake tracking are only applied once per day.
+          You can review your results below or start a new practice session immediately.
         </p>
         <p v-if="showRedirectNotice" class="submitted-banner__notice">
           You were redirected here because today&apos;s quiz has already been submitted.
         </p>
       </div>
       <div class="submitted-banner__actions">
+        <button class="button" @click="handleStartNewSession()">➕ Start New Session</button>
         <RouterLink class="button button--ghost" to="/review">Review due words</RouterLink>
         <RouterLink class="button button--ghost" to="/mistakes">Inspect mistakes</RouterLink>
       </div>

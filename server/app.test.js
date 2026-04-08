@@ -23,13 +23,13 @@ describe('TOEIC vocabulary expansion API', () => {
     })
   })
 
-  it('returns 10 TOEIC-level vocabulary objects for a topic', async () => {
+  it('returns 20 TOEIC-level vocabulary objects for a topic', async () => {
     const topic = 'Business Negotiations'
     const response = await request(app).post('/api/vocabulary/expand').send({ topic })
 
     expect(response.status).toBe(200)
     expect(Array.isArray(response.body)).toBe(true)
-    expect(response.body).toHaveLength(10)
+    expect(response.body).toHaveLength(20)
 
     const ids = new Set()
     const words = new Set()
@@ -55,7 +55,7 @@ describe('TOEIC vocabulary expansion API', () => {
       words.add(item.word)
     }
 
-    expect(ids.size).toBe(10)
-    expect(words.size).toBe(10)
+    expect(ids.size).toBe(20)
+    expect(words.size).toBe(20)
   })
 })

@@ -35,6 +35,19 @@ function handleSubmit() {
   quizStore.submitQuiz()
   router.push('/quiz/result')
 }
+
+function confirmAndSubmit() {
+  const answered = Object.keys(quizStore.answers).length
+  const total = quizStore.questions.length
+
+  if (answered < total) {
+    if (!window.confirm(`You have answered ${answered} of ${total} questions. Submit anyway?`)) {
+      return
+    }
+  }
+
+  handleSubmit()
+}
 </script>
 
 <template>
@@ -48,7 +61,7 @@ function handleSubmit() {
         </p>
       </div>
       <div class="button-row">
-        <button class="button button--ghost" @click="quizStore.initializeDailyQuiz()">Regenerate</button>
+        <button class="button button--ghost" @click="quizStore.startNewSession()">Regenerate</button>
         <button class="button" :disabled="quizStore.questions.length === 0 || quizStore.isSubmitted" @click="handleSubmit">
           Submit quiz
         </button>
@@ -85,7 +98,6 @@ function handleSubmit() {
         :total-questions="quizStore.questions.length"
         :selected-answer="selectedAnswer"
         :part-of-speech="currentWord?.part_of_speech"
-        :definition="currentWord?.translation_zh_TW"
         :example-sentence="currentWord?.example_sentence"
         @select="quizStore.answerQuestion(currentQuestion.wordId, $event)"
       />
@@ -94,8 +106,20 @@ function handleSubmit() {
         <button class="button button--ghost" @click="quizStore.goToQuestion(quizStore.currentIndex - 1)">
           Previous
         </button>
-        <button class="button button--ghost" @click="quizStore.goToQuestion(quizStore.currentIndex + 1)">
+        <button
+          v-if="quizStore.currentIndex < quizStore.questions.length - 1"
+          class="button button--ghost"
+          @click="quizStore.goToQuestion(quizStore.currentIndex + 1)"
+        >
           Next
+        </button>
+        <button
+          v-else
+          class="button"
+          :disabled="quizStore.isSubmitted"
+          @click="confirmAndSubmit"
+        >
+          Submit Quiz
         </button>
       </div>
     </SectionCard>

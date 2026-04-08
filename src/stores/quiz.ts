@@ -172,6 +172,21 @@ export const useQuizStore = defineStore('quiz', {
       this.score = 0
       storageService.clearDailyQuiz()
     },
+    startNewSession() {
+      this.resetQuiz()
+      const vocabularyStore = useVocabularyStore()
+      const settingsStore = useSettingsStore()
+
+      this.quizDate = getTodayKey()
+      const { questions, summary } = buildQuizQuestions(vocabularyStore.words, settingsStore.quizSize)
+      this.questions = questions
+      this.selectionSummary = summary
+      this.currentIndex = 0
+      this.answers = {}
+      this.isSubmitted = false
+      this.score = 0
+      this.persistSnapshot()
+    },
     persistSnapshot() {
       const snapshot: DailyQuizSnapshot = {
         date: this.quizDate ?? getTodayKey(),

@@ -58,10 +58,12 @@ function createWord(id: string, memory: MemoryMetadata, partOfSpeech = 'noun'): 
 
 describe('useQuizStore persisted selection summary', () => {
   beforeEach(() => {
-    setActivePinia(createPinia())
+    const mockStorage = createStorageMock()
+    vi.stubGlobal('localStorage', mockStorage)
     vi.stubGlobal('window', {
-      localStorage: createStorageMock(),
+      localStorage: mockStorage,
     })
+    setActivePinia(createPinia())
   })
 
   it('matches selected question IDs when bucket targets are filled exactly', () => {

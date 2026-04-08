@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto'
 import OpenAI from 'openai'
 
 export const TOEIC_VOCABULARY_EXPANSION_SYSTEM_PROMPT = `You are a TOEIC curriculum assistant generating business-English vocabulary for adult learners.
-Return exactly 10 items as a JSON array.
+Return exactly 20 items as a JSON array.
 Every item must strictly follow this schema:
 {
   "id": "unique string",
@@ -284,14 +284,14 @@ function buildMockVocabulary(topic) {
 
   const selectedEntries = rankedEntries
     .filter((item) => item.score > 0)
-    .slice(0, 10)
+    .slice(0, 20)
     .map((item) => item.entry)
 
   const fallbackEntries = rankedEntries
     .filter((item) => !selectedEntries.includes(item.entry))
     .map((item) => item.entry)
 
-  while (selectedEntries.length < 10 && fallbackEntries.length > 0) {
+  while (selectedEntries.length < 20 && fallbackEntries.length > 0) {
     const nextEntry = fallbackEntries.shift()
 
     if (!nextEntry) {
@@ -341,8 +341,8 @@ function parseGeneratedVocabulary(content, topic) {
     throw new Error('OpenAI response is not a JSON array.')
   }
 
-  if (parsed.length !== 10) {
-    throw new Error('OpenAI response did not return exactly 10 vocabulary items.')
+  if (parsed.length !== 20) {
+    throw new Error('OpenAI response did not return exactly 20 vocabulary items.')
   }
 
   return parsed.map((item) => normalizeGeneratedItem(item, topic))
@@ -378,7 +378,7 @@ export function buildLlmRequest(topic) {
       },
       {
         role: 'user',
-        content: `Generate 10 TOEIC-level vocabulary words for the topic "${topic}". Return JSON only.`,
+        content: `Generate 20 TOEIC-level vocabulary words for the topic "${topic}". Return JSON only.`,
       },
     ],
   }

@@ -1,5 +1,7 @@
 import cors from 'cors'
 import express from 'express'
+import helmet from 'helmet'
+import rateLimit from 'express-rate-limit'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { vocabularyRouter } from './routes/vocabulary.js'
@@ -13,8 +15,17 @@ const allowedOrigins = process.env.ALLOWED_ORIGINS
   ? process.env.ALLOWED_ORIGINS.split(',')
   : ['http://localhost:5173', 'http://localhost:3001']
 
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many attempts. Please try again after 15 minutes.' },
+})
+
 const app = express()
 
+app.use(helmet())
 app.use(
   cors({
     origin(origin, callback) {
@@ -33,7 +44,7 @@ app.get('/api/health', (_request, response) => {
   response.json({ status: 'ok' })
 })
 
-app.use('/api/auth', authRouter)
+app.use('/api/auth', authLimiter, authRouter)
 app.use('/api/words', wordsRouter)
 app.use('/api/vocabulary', vocabularyRouter)
 
