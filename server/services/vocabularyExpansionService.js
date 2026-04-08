@@ -1,6 +1,38 @@
 import { randomUUID } from 'node:crypto'
 import OpenAI from 'openai'
 
+async function fetchUnsplashImageUrl(query) {
+  const accessKey = process.env.UNSPLASH_ACCESS_KEY
+  if (!accessKey) return ''
+
+  try {
+    const url = `https://api.unsplash.com/search/photos?query=${encodeURIComponent(query)}&per_page=1&orientation=landscape`
+    const response = await fetch(url, {
+      headers: { Authorization: `Client-ID ${accessKey}` },
+    })
+
+    if (!response.ok) return ''
+
+    const data = await response.json()
+    return data.results?.[0]?.urls?.small ?? ''
+  } catch {
+    return ''
+  }
+}
+
+async function resolveImageUrls(words) {
+  if (!process.env.UNSPLASH_ACCESS_KEY) return words
+
+  const settled = await Promise.allSettled(
+    words.map((w) => fetchUnsplashImageUrl(w.image_prompt)),
+  )
+
+  return words.map((w, i) => ({
+    ...w,
+    image_url: settled[i].status === 'fulfilled' ? settled[i].value : '',
+  }))
+}
+
 export const TOEIC_VOCABULARY_EXPANSION_SYSTEM_PROMPT = `You are a TOEIC curriculum assistant generating business-English vocabulary for adult learners.
 Return exactly 20 items as a JSON array.
 Every item must strictly follow this schema:
@@ -277,7 +309,7 @@ function buildVocabularyItem(entry, topic) {
     difficulty: 'medium',
     tags: Array.from(new Set([topic, ...entry.tags])),
     image_prompt: imagePrompt,
-    image_url: `https://source.unsplash.com/featured/400x300/?${encodeURIComponent(imagePrompt)}`,
+    image_url: '',
   }
 }
 
@@ -307,6 +339,11 @@ function buildMockVocabulary(topic) {
   }
 
   return selectedEntries.map((entry) => buildVocabularyItem(entry, topic))
+}
+
+async function buildMockVocabularyWithImages(topic) {
+  const words = buildMockVocabulary(topic)
+  return resolveImageUrls(words)
 }
 
 function stripCodeFences(value) {
@@ -339,7 +376,7 @@ function normalizeGeneratedItem(item, topic) {
     difficulty: 'medium',
     tags: Array.from(new Set([topic, ...rawTags.map((tag) => tag.trim())])),
     image_prompt: imagePrompt,
-    image_url: `https://source.unsplash.com/featured/400x300/?${encodeURIComponent(imagePrompt)}`,
+    image_url: '',
   }
 }
 
@@ -377,6 +414,10 @@ async function expandVocabularyWithOpenAi(topic) {
   return parseGeneratedVocabulary(content, topic)
 }
 
+async function expandWithImages(words) {
+  return resolveImageUrls(words)
+}
+
 export function buildLlmRequest(topic) {
   return {
     model: 'gpt-4o-mini',
@@ -398,8 +439,9 @@ export async function expandVocabularyByTopic(topic) {
     const words = await expandVocabularyWithOpenAi(topic)
 
     if (words) {
+      const withImages = await expandWithImages(words)
       return {
-        words,
+        words: withImages,
         llmRequest: buildLlmRequest(topic),
       }
     }
@@ -408,7 +450,7 @@ export async function expandVocabularyByTopic(topic) {
   }
 
   return {
-    words: buildMockVocabulary(topic),
+    words: await buildMockVocabularyWithImages(topic),
     llmRequest: buildLlmRequest(topic),
   }
 }
