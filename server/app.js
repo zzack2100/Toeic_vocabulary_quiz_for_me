@@ -3,6 +3,8 @@ import express from 'express'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { vocabularyRouter } from './routes/vocabulary.js'
+import { authRouter } from './routes/auth.js'
+import { wordsRouter } from './routes/words.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const distPath = path.join(__dirname, '..', 'dist')
@@ -31,6 +33,8 @@ app.get('/api/health', (_request, response) => {
   response.json({ status: 'ok' })
 })
 
+app.use('/api/auth', authRouter)
+app.use('/api/words', wordsRouter)
 app.use('/api/vocabulary', vocabularyRouter)
 
 // Serve Vue SPA static files
