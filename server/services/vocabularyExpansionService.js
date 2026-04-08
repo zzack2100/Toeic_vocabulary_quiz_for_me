@@ -414,9 +414,7 @@ async function expandVocabularyWithOpenAi(topic) {
   return parseGeneratedVocabulary(content, topic)
 }
 
-async function expandWithImages(words) {
-  return resolveImageUrls(words)
-}
+export { fetchUnsplashImageUrl }
 
 export function buildLlmRequest(topic) {
   return {
@@ -439,9 +437,8 @@ export async function expandVocabularyByTopic(topic) {
     const words = await expandVocabularyWithOpenAi(topic)
 
     if (words) {
-      const withImages = await expandWithImages(words)
       return {
-        words: withImages,
+        words,
         llmRequest: buildLlmRequest(topic),
       }
     }
@@ -450,7 +447,7 @@ export async function expandVocabularyByTopic(topic) {
   }
 
   return {
-    words: await buildMockVocabularyWithImages(topic),
+    words: buildMockVocabulary(topic),
     llmRequest: buildLlmRequest(topic),
   }
 }

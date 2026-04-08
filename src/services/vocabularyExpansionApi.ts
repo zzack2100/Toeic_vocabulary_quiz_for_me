@@ -22,3 +22,16 @@ export async function requestVocabularyExpansion(topic: string): Promise<Vocabul
 
   return (await response.json()) as ExpandVocabularyResponse[]
 }
+
+export async function fetchImageForWord(imagePrompt: string): Promise<string> {
+  try {
+    const response = await fetch(`/api/vocabulary/image?prompt=${encodeURIComponent(imagePrompt)}`)
+
+    if (!response.ok) return ''
+
+    const data = (await response.json()) as { image_url: string }
+    return data.image_url ?? ''
+  } catch {
+    return ''
+  }
+}

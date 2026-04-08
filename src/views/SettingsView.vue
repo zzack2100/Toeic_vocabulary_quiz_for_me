@@ -15,7 +15,7 @@ const mistakesStore = useMistakesStore()
 const quizStore = useQuizStore()
 
 const { quizSize, resetMemoryOnWrong, theme, } = storeToRefs(settingsStore)
-const { isExpanding } = storeToRefs(vocabularyStore)
+const { isExpanding, expansionStatus, expansionProgress } = storeToRefs(vocabularyStore)
 
 const TOEIC_CATEGORIES = [
   { value: 'General Business', label: '商業 (Business)' },
@@ -30,8 +30,8 @@ const TOEIC_CATEGORIES = [
 ]
 
 const expansionTopic = ref('General Business')
-const expansionStatus = ref('')
-const expansionStatusTone = ref<'neutral' | 'success' | 'error'>('neutral')
+const resultMessage = ref('')
+const resultTone = ref<'neutral' | 'success' | 'error'>('neutral')
 
 function resetAllProgress() {
   storageService.resetAll()
@@ -45,18 +45,20 @@ async function handleVocabularyExpansion() {
   const topic = expansionTopic.value.trim()
 
   if (!topic) {
-    expansionStatusTone.value = 'error'
-    expansionStatus.value = 'Enter a TOEIC topic before requesting new vocabulary.'
+    resultTone.value = 'error'
+    resultMessage.value = 'Enter a TOEIC topic before requesting new vocabulary.'
     return
   }
 
+  resultMessage.value = ''
+
   try {
     const result = await vocabularyStore.expandVocabulary(topic)
-    expansionStatusTone.value = 'success'
-    expansionStatus.value = `Requested ${result.requestedCount} words for "${topic}". Added ${result.addedCount} new words and skipped ${result.skippedCount} duplicates.`
+    resultTone.value = 'success'
+    resultMessage.value = `Requested ${result.requestedCount} words for "${topic}". Added ${result.addedCount} new words and skipped ${result.skippedCount} duplicates.`
   } catch (error) {
-    expansionStatusTone.value = 'error'
-    expansionStatus.value = error instanceof Error ? error.message : 'Vocabulary expansion failed.'
+    resultTone.value = 'error'
+    resultMessage.value = error instanceof Error ? error.message : 'Vocabulary expansion failed.'
   }
 }
 </script>
@@ -146,12 +148,18 @@ async function handleVocabularyExpansion() {
           {{ isExpanding ? 'Expanding vocabulary...' : 'Expand vocabulary' }}
         </button>
       </div>
+      <div v-if="isExpanding" class="expansion-progress">
+        <div class="expansion-progress__bar">
+          <div class="expansion-progress__fill" :style="{ width: expansionProgress + '%' }" />
+        </div>
+        <p class="expansion-progress__label">{{ expansionStatus }}</p>
+      </div>
       <p
-        v-if="expansionStatus"
+        v-if="resultMessage"
         class="expansion-status"
-        :class="`expansion-status--${expansionStatusTone}`"
+        :class="`expansion-status--${resultTone}`"
       >
-        {{ expansionStatus }}
+        {{ resultMessage }}
       </p>
     </SectionCard>
   </section>
@@ -160,6 +168,30 @@ async function handleVocabularyExpansion() {
 <style scoped>
 .expansion-note {
   margin: 14px 0 0;
+}
+
+.expansion-progress {
+  margin: 16px 0 0;
+}
+
+.expansion-progress__bar {
+  height: 8px;
+  border-radius: 999px;
+  background: var(--tone-neutral-soft);
+  overflow: hidden;
+}
+
+.expansion-progress__fill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--accent);
+  transition: width 0.3s ease;
+}
+
+.expansion-progress__label {
+  margin: 8px 0 0;
+  font-size: 0.85rem;
+  color: var(--text-muted);
 }
 
 .expansion-status {

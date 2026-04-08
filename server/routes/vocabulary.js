@@ -1,7 +1,23 @@
 import { Router } from 'express'
-import { expandVocabularyByTopic } from '../services/vocabularyExpansionService.js'
+import { expandVocabularyByTopic, fetchUnsplashImageUrl } from '../services/vocabularyExpansionService.js'
 
 const vocabularyRouter = Router()
+
+vocabularyRouter.get('/image', async (request, response, next) => {
+  try {
+    const prompt = typeof request.query.prompt === 'string' ? request.query.prompt.trim() : ''
+
+    if (!prompt) {
+      response.status(400).json({ error: 'Missing "prompt" query parameter.' })
+      return
+    }
+
+    const imageUrl = await fetchUnsplashImageUrl(prompt)
+    response.status(200).json({ image_url: imageUrl })
+  } catch (error) {
+    next(error)
+  }
+})
 
 vocabularyRouter.post('/expand', async (request, response, next) => {
   try {

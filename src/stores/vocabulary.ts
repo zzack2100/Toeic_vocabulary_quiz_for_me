@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { requestVocabularyExpansion } from '../services/vocabularyExpansionApi'
+import { requestVocabularyExpansion, fetchImageForWord } from '../services/vocabularyExpansionApi'
 import { fetchVocabulary, fetchWordsFromCloud, syncWordsToCloud } from '../services/vocabularyService'
 import { storageService } from '../services/storageService'
 import { createDefaultMemoryMetadata } from '../utils/spacedRepetition'
@@ -13,6 +13,8 @@ interface VocabularyState {
   lastLoadedAt: string | null
   errorMessage: string | null
   isExpanding: boolean
+  expansionStatus: string
+  expansionProgress: number
 }
 
 export const useVocabularyStore = defineStore('vocabulary', {
@@ -22,6 +24,8 @@ export const useVocabularyStore = defineStore('vocabulary', {
     lastLoadedAt: null,
     errorMessage: null,
     isExpanding: false,
+    expansionStatus: '',
+    expansionProgress: 0,
   }),
   getters: {
     totalWords: (state) => state.words.length,
@@ -121,6 +125,8 @@ export const useVocabularyStore = defineStore('vocabulary', {
     async expandVocabulary(topic: string) {
       this.errorMessage = null
       this.isExpanding = true
+      this.expansionStatus = ''
+      this.expansionProgress = 0
 
       const TARGET = 20
       const MAX_RETRIES = 3
@@ -130,10 +136,15 @@ export const useVocabularyStore = defineStore('vocabulary', {
         const existingIds = new Set(existingCustomWords.map((word) => word.id))
         const existingWordNames = new Set(this.words.map((word) => word.word.toLowerCase()))
         const nextCustomWords = [...existingCustomWords]
+        const newWords: VocabularySeed[] = []
 
         let addedCount = 0
         let totalRequested = 0
         let retries = 0
+
+        // Step 1: AI generation
+        this.expansionStatus = 'Step 1/3: AI is generating words…'
+        this.expansionProgress = 5
 
         while (addedCount < TARGET && retries < MAX_RETRIES) {
           const expandedWords = await requestVocabularyExpansion(topic)
@@ -146,6 +157,7 @@ export const useVocabularyStore = defineStore('vocabulary', {
             }
 
             nextCustomWords.push(word)
+            newWords.push(word)
             existingIds.add(word.id)
             existingWordNames.add(word.word.toLowerCase())
             addedCount += 1
@@ -158,6 +170,28 @@ export const useVocabularyStore = defineStore('vocabulary', {
           else retries = 0
         }
 
+        this.expansionProgress = 30
+
+        // Step 2: Fetch images one by one
+        const wordsWithPrompts = newWords.filter((w) => w.image_prompt)
+        for (let i = 0; i < wordsWithPrompts.length; i++) {
+          const w = wordsWithPrompts[i]
+          this.expansionStatus = `Step 2/3: Fetching image ${i + 1}/${wordsWithPrompts.length} — "${w.word}"…`
+          this.expansionProgress = 30 + Math.round(((i + 1) / wordsWithPrompts.length) * 55)
+
+          const imageUrl = await fetchImageForWord(w.image_prompt!)
+          if (imageUrl) {
+            w.image_url = imageUrl
+            // Also update in nextCustomWords
+            const stored = nextCustomWords.find((cw) => cw.id === w.id)
+            if (stored) stored.image_url = imageUrl
+          }
+        }
+
+        // Step 3: Save & sync
+        this.expansionStatus = 'Step 3/3: Saving and syncing…'
+        this.expansionProgress = 90
+
         storageService.saveCustomVocabulary(nextCustomWords)
         this.words = await fetchVocabulary()
         this.lastLoadedAt = new Date().toISOString()
@@ -169,6 +203,9 @@ export const useVocabularyStore = defineStore('vocabulary', {
           })
         }
 
+        this.expansionProgress = 100
+        this.expansionStatus = ''
+
         return {
           requestedCount: totalRequested,
           addedCount,
@@ -176,6 +213,8 @@ export const useVocabularyStore = defineStore('vocabulary', {
         }
       } catch (error) {
         this.errorMessage = error instanceof Error ? error.message : 'Vocabulary expansion failed.'
+        this.expansionStatus = ''
+        this.expansionProgress = 0
         throw error
       } finally {
         this.isExpanding = false
