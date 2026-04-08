@@ -48,6 +48,7 @@ export async function syncWordsToCloud(words: ToeicWord[], token: string): Promi
       times_correct: w.memory.times_correct,
       last_tested: w.memory.last_reviewed_date,
       memory_level: w.memory.memory_level,
+      is_in_mistake_notebook: w.memory.is_in_mistake_notebook,
     },
   }))
 

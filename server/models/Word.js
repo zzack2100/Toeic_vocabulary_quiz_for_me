@@ -9,6 +9,7 @@ const wordSchema = new mongoose.Schema({
     times_correct: { type: Number, default: 0 },
     last_tested: { type: String, default: null },
     memory_level: { type: Number, default: 0 },
+    is_in_mistake_notebook: { type: Boolean, default: false },
   },
 })
 

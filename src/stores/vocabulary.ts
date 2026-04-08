@@ -4,6 +4,7 @@ import { fetchVocabulary, fetchWordsFromCloud, syncWordsToCloud } from '../servi
 import { storageService } from '../services/storageService'
 import { createDefaultMemoryMetadata } from '../utils/spacedRepetition'
 import { useAuthStore } from './auth'
+import { useMistakesStore } from './mistakes'
 import type { MemoryMetadata, ProgressMap, ToeicWord, VocabularySeed } from '../types/vocabulary'
 
 interface VocabularyState {
@@ -57,6 +58,10 @@ export const useVocabularyStore = defineStore('vocabulary', {
                     local.memory.last_reviewed_date = lastTested
                   }
                 }
+                const cloudMistake = (cwMemory.is_in_mistake_notebook as boolean) ?? false
+                if (cloudMistake) {
+                  local.memory.is_in_mistake_notebook = true
+                }
               } else if (!localWordNames.has(cw.word.toLowerCase())) {
                 // Word exists in cloud but not locally — import it
                 const cwAny = cw as unknown as Record<string, unknown>
@@ -79,6 +84,7 @@ export const useVocabularyStore = defineStore('vocabulary', {
                     times_correct: (cwMemory?.times_correct as number) ?? 0,
                     memory_level: (cwMemory?.memory_level as number) ?? 0,
                     last_reviewed_date: (cwMemory?.last_tested as string) ?? null,
+                    is_in_mistake_notebook: (cwMemory?.is_in_mistake_notebook as boolean) ?? false,
                   }
 
                   this.words.push({ ...seed, memory })
@@ -92,6 +98,15 @@ export const useVocabularyStore = defineStore('vocabulary', {
               storageService.saveCustomVocabulary(customWords)
             }
             this.persistProgress()
+
+            // Sync mistake notebook from cloud flags
+            const mistakesStore = useMistakesStore()
+            mistakesStore.loadNotebook()
+            for (const w of this.words) {
+              if (w.memory.is_in_mistake_notebook && !mistakesStore.notebook[w.id]) {
+                mistakesStore.markMistake(w.id, '')
+              }
+            }
           } catch {
             // Cloud fetch failed — continue with local data silently
           }
