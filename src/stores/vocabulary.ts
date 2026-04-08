@@ -107,24 +107,40 @@ export const useVocabularyStore = defineStore('vocabulary', {
       this.errorMessage = null
       this.isExpanding = true
 
+      const TARGET = 20
+      const MAX_RETRIES = 3
+
       try {
-        const expandedWords = await requestVocabularyExpansion(topic)
         const existingCustomWords = storageService.getCustomVocabulary()
         const existingIds = new Set(existingCustomWords.map((word) => word.id))
         const existingWordNames = new Set(this.words.map((word) => word.word.toLowerCase()))
         const nextCustomWords = [...existingCustomWords]
 
         let addedCount = 0
+        let totalRequested = 0
+        let retries = 0
 
-        for (const word of expandedWords) {
-          if (existingIds.has(word.id) || existingWordNames.has(word.word.toLowerCase())) {
-            continue
+        while (addedCount < TARGET && retries < MAX_RETRIES) {
+          const expandedWords = await requestVocabularyExpansion(topic)
+          totalRequested += expandedWords.length
+          let addedThisRound = 0
+
+          for (const word of expandedWords) {
+            if (existingIds.has(word.id) || existingWordNames.has(word.word.toLowerCase())) {
+              continue
+            }
+
+            nextCustomWords.push(word)
+            existingIds.add(word.id)
+            existingWordNames.add(word.word.toLowerCase())
+            addedCount += 1
+            addedThisRound += 1
+
+            if (addedCount >= TARGET) break
           }
 
-          nextCustomWords.push(word)
-          existingIds.add(word.id)
-          existingWordNames.add(word.word.toLowerCase())
-          addedCount += 1
+          if (addedThisRound === 0) retries += 1
+          else retries = 0
         }
 
         storageService.saveCustomVocabulary(nextCustomWords)
@@ -139,9 +155,9 @@ export const useVocabularyStore = defineStore('vocabulary', {
         }
 
         return {
-          requestedCount: expandedWords.length,
+          requestedCount: totalRequested,
           addedCount,
-          skippedCount: expandedWords.length - addedCount,
+          skippedCount: totalRequested - addedCount,
         }
       } catch (error) {
         this.errorMessage = error instanceof Error ? error.message : 'Vocabulary expansion failed.'
