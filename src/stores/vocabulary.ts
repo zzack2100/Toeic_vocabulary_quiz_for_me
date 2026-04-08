@@ -2,8 +2,9 @@ import { defineStore } from 'pinia'
 import { requestVocabularyExpansion } from '../services/vocabularyExpansionApi'
 import { fetchVocabulary, fetchWordsFromCloud, syncWordsToCloud } from '../services/vocabularyService'
 import { storageService } from '../services/storageService'
+import { createDefaultMemoryMetadata } from '../utils/spacedRepetition'
 import { useAuthStore } from './auth'
-import type { MemoryMetadata, ProgressMap, ToeicWord } from '../types/vocabulary'
+import type { MemoryMetadata, ProgressMap, ToeicWord, VocabularySeed } from '../types/vocabulary'
 
 interface VocabularyState {
   words: ToeicWord[]
@@ -36,10 +37,16 @@ export const useVocabularyStore = defineStore('vocabulary', {
         if (authStore.isAuthenticated) {
           try {
             const cloudWords = await fetchWordsFromCloud(authStore.token!)
+            const localWordNames = new Set(this.words.map((w) => w.word.toLowerCase()))
+            const customWords = storageService.getCustomVocabulary()
+            const customIds = new Set(customWords.map((w) => w.id))
+            let addedFromCloud = false
+
             for (const cw of cloudWords) {
+              const cwMemory = cw.memory as unknown as Record<string, unknown>
               const local = this.words.find((w) => w.word.toLowerCase() === cw.word.toLowerCase())
-              if (local && cw.memory) {
-                const cwMemory = cw.memory as unknown as Record<string, unknown>
+
+              if (local && cwMemory) {
                 const timesSeen = (cwMemory.times_seen as number) ?? 0
                 if (timesSeen > local.memory.times_seen) {
                   local.memory.times_seen = timesSeen
@@ -50,7 +57,39 @@ export const useVocabularyStore = defineStore('vocabulary', {
                     local.memory.last_reviewed_date = lastTested
                   }
                 }
+              } else if (!localWordNames.has(cw.word.toLowerCase())) {
+                // Word exists in cloud but not locally — import it
+                const cwAny = cw as unknown as Record<string, unknown>
+                const newId = `cloud-${cw.word.toLowerCase().replace(/\s+/g, '-')}`
+
+                if (!customIds.has(newId)) {
+                  const seed: VocabularySeed = {
+                    id: newId,
+                    word: cw.word,
+                    translation_zh_TW: (cwAny.translation as string) ?? '',
+                    part_of_speech: '',
+                    example_sentence: '',
+                  }
+                  customWords.push(seed)
+                  customIds.add(newId)
+
+                  const memory: MemoryMetadata = {
+                    ...createDefaultMemoryMetadata(),
+                    times_seen: (cwMemory?.times_seen as number) ?? 0,
+                    times_correct: (cwMemory?.times_correct as number) ?? 0,
+                    memory_level: (cwMemory?.memory_level as number) ?? 0,
+                    last_reviewed_date: (cwMemory?.last_tested as string) ?? null,
+                  }
+
+                  this.words.push({ ...seed, memory })
+                  localWordNames.add(cw.word.toLowerCase())
+                  addedFromCloud = true
+                }
               }
+            }
+
+            if (addedFromCloud) {
+              storageService.saveCustomVocabulary(customWords)
             }
             this.persistProgress()
           } catch {
