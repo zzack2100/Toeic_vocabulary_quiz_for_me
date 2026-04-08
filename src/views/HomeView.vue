@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import { RouterLink } from 'vue-router'
 import StatCard from '../components/dashboard/StatCard.vue'
+import ActivityHeatmap from '../components/dashboard/ActivityHeatmap.vue'
 import AuthCard from '../components/auth/AuthCard.vue'
 import { useVocabularyStore } from '../stores/vocabulary'
 import { useReviewStore } from '../stores/review'
@@ -104,6 +105,8 @@ const dashboardActions = computed(() => [
         :tone="stat.tone"
       />
     </div>
+
+    <ActivityHeatmap style="margin-top: 18px" />
 
     <div class="grid grid--two" style="margin-top: 18px">
       <article

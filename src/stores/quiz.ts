@@ -160,6 +160,7 @@ export const useQuizStore = defineStore('quiz', {
       this.score = nextScore
       this.isSubmitted = true
       reviewStore.calculateDueWords(vocabularyStore.words)
+      storageService.recordActivity(new Date().toISOString())
       this.persistSnapshot()
     },
     resetQuiz() {

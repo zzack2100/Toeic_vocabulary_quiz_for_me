@@ -7,6 +7,7 @@ const KEYS = {
   mistakes: 'toeic.mistakes',
   settings: 'toeic.settings',
   customVocabulary: 'toeic.vocab.custom',
+  activityHistory: 'toeic.activity.history',
 }
 
 function parseJson<T>(key: string, fallback: T): T {
@@ -63,5 +64,13 @@ export const storageService = {
   },
   resetAll() {
     Object.values(KEYS).forEach((key) => window.localStorage.removeItem(key))
+  },
+  getActivityHistory(): string[] {
+    return parseJson(KEYS.activityHistory, [])
+  },
+  recordActivity(timestamp: string) {
+    const history = parseJson<string[]>(KEYS.activityHistory, [])
+    history.push(timestamp)
+    writeJson(KEYS.activityHistory, history)
   },
 }
