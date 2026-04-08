@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import { RouterLink } from 'vue-router'
 import StatCard from '../components/dashboard/StatCard.vue'
+import AuthCard from '../components/auth/AuthCard.vue'
 import { useVocabularyStore } from '../stores/vocabulary'
 import { useReviewStore } from '../stores/review'
 import { useMistakesStore } from '../stores/mistakes'
@@ -89,6 +90,8 @@ const dashboardActions = computed(() => [
         </p>
       </div>
     </header>
+
+    <AuthCard style="margin-bottom: 18px" />
 
     <div class="grid grid--stats">
       <StatCard
