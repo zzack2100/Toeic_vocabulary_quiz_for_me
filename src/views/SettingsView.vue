@@ -17,7 +17,19 @@ const quizStore = useQuizStore()
 const { quizSize, resetMemoryOnWrong, theme, } = storeToRefs(settingsStore)
 const { isExpanding } = storeToRefs(vocabularyStore)
 
-const expansionTopic = ref('Business Negotiations')
+const TOEIC_CATEGORIES = [
+  { value: 'General Business', label: '商業 (Business)' },
+  { value: 'Marketing & Sales', label: '市場行銷 (Marketing)' },
+  { value: 'Personnel & HR', label: '人事管理 (Personnel)' },
+  { value: 'Finance & Banking', label: '金融財務 (Finance)' },
+  { value: 'Office Procedures', label: '辦公實務 (Office)' },
+  { value: 'Purchasing & Logistics', label: '採購物流 (Logistics)' },
+  { value: 'Travel & Transport', label: '旅遊交通 (Travel)' },
+  { value: 'Entertainment & Social', label: '社交與餐飲 (Social)' },
+  { value: 'Healthcare', label: '醫療保健 (Health)' },
+]
+
+const expansionTopic = ref('General Business')
 const expansionStatus = ref('')
 const expansionStatusTone = ref<'neutral' | 'success' | 'error'>('neutral')
 
@@ -120,12 +132,11 @@ async function handleVocabularyExpansion() {
     >
       <div class="field">
         <label for="expansion-topic">Topic</label>
-        <input
-          id="expansion-topic"
-          v-model.trim="expansionTopic"
-          placeholder="Business Negotiations"
-          type="text"
-        />
+        <select id="expansion-topic" v-model="expansionTopic">
+          <option v-for="cat in TOEIC_CATEGORIES" :key="cat.value" :value="cat.value">
+            {{ cat.label }}
+          </option>
+        </select>
       </div>
       <p class="muted expansion-note">
         Start the backend with `npm run dev:api` so the frontend can call `/api/vocabulary/expand` during development.
