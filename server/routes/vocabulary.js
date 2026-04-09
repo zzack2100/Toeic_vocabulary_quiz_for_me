@@ -40,6 +40,7 @@ vocabularyRouter.post('/expand', async (request, response, next) => {
   try {
     const topic = typeof request.body?.topic === 'string' ? request.body.topic.trim() : ''
     const includeImages = request.body?.includeImages === true
+    const existingWords = Array.isArray(request.body?.existingWords) ? request.body.existingWords : []
 
     if (!topic) {
       response.status(400).json({
@@ -49,7 +50,7 @@ vocabularyRouter.post('/expand', async (request, response, next) => {
       return
     }
 
-    const { words } = await expandVocabularyByTopic(topic, includeImages)
+    const { words } = await expandVocabularyByTopic(topic, includeImages, existingWords)
     response.status(200).json(words)
   } catch (error) {
     next(error)

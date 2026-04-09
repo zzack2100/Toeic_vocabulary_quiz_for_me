@@ -138,7 +138,8 @@ export const useVocabularyStore = defineStore('vocabulary', {
         this.expansionStatus = `Step 1/2: AI is generating words${includeImages ? ' and fetching images' : ''}…`
         this.expansionProgress = 5
 
-        const expandedWords = await requestVocabularyExpansion(topic, includeImages)
+        const existingWordStrings = this.words.map((w) => w.word)
+        const expandedWords = await requestVocabularyExpansion(topic, includeImages, existingWordStrings)
         let addedCount = 0
 
         for (const word of expandedWords) {

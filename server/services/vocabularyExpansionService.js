@@ -400,13 +400,13 @@ function parseGeneratedVocabulary(content, topic) {
   return parsed.map((item) => normalizeGeneratedItem(item, topic))
 }
 
-async function expandVocabularyWithOpenAi(topic) {
+async function expandVocabularyWithOpenAi(topic, existingWords = []) {
   if (!process.env.OPENAI_API_KEY) {
     return null
   }
 
   const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
-  const llmRequest = buildLlmRequest(topic)
+  const llmRequest = buildLlmRequest(topic, existingWords)
   const completion = await client.chat.completions.create({
     model: llmRequest.model,
     messages: llmRequest.messages,
@@ -422,7 +422,15 @@ async function expandVocabularyWithOpenAi(topic) {
 
 export { fetchUnsplashImageUrl, resolveImageUrls }
 
-export function buildLlmRequest(topic) {
+export function buildLlmRequest(topic, existingWords = []) {
+  let userContent = `Generate 5 TOEIC-level vocabulary words for the topic "${topic}". Return JSON only.`
+
+  if (existingWords.length > 0) {
+    userContent += ` Do NOT generate any of these words: ${existingWords.join(', ')}.`
+  }
+
+  userContent += ' Ensure the generated words are diverse and explore less common B2/C1 TOEIC vocabulary.'
+
   return {
     model: 'gpt-4o-mini',
     messages: [
@@ -432,17 +440,17 @@ export function buildLlmRequest(topic) {
       },
       {
         role: 'user',
-        content: `Generate 5 TOEIC-level vocabulary words for the topic "${topic}". Return JSON only.`,
+        content: userContent,
       },
     ],
   }
 }
 
-export async function expandVocabularyByTopic(topic, includeImages = false) {
+export async function expandVocabularyByTopic(topic, includeImages = false, existingWords = []) {
   let words
 
   try {
-    words = await expandVocabularyWithOpenAi(topic)
+    words = await expandVocabularyWithOpenAi(topic, existingWords)
   } catch (error) {
     console.warn('Falling back to mock TOEIC vocabulary expansion.', error)
   }
