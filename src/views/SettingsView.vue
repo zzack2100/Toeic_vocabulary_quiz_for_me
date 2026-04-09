@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { ref } from 'vue'
 import { storeToRefs } from 'pinia'
 import SectionCard from '../components/common/SectionCard.vue'
 import AuthCard from '../components/auth/AuthCard.vue'
@@ -15,23 +14,6 @@ const mistakesStore = useMistakesStore()
 const quizStore = useQuizStore()
 
 const { quizSize, resetMemoryOnWrong, theme, } = storeToRefs(settingsStore)
-const { isExpanding, expansionStatus, expansionProgress } = storeToRefs(vocabularyStore)
-
-const TOEIC_CATEGORIES = [
-  { value: 'General Business', label: '商業 (Business)' },
-  { value: 'Marketing & Sales', label: '市場行銷 (Marketing)' },
-  { value: 'Personnel & HR', label: '人事管理 (Personnel)' },
-  { value: 'Finance & Banking', label: '金融財務 (Finance)' },
-  { value: 'Office Procedures', label: '辦公實務 (Office)' },
-  { value: 'Purchasing & Logistics', label: '採購物流 (Logistics)' },
-  { value: 'Travel & Transport', label: '旅遊交通 (Travel)' },
-  { value: 'Entertainment & Social', label: '社交與餐飲 (Social)' },
-  { value: 'Healthcare', label: '醫療保健 (Health)' },
-]
-
-const expansionTopic = ref('General Business')
-const resultMessage = ref('')
-const resultTone = ref<'neutral' | 'success' | 'error'>('neutral')
 
 function resetAllProgress() {
   storageService.resetAll()
@@ -39,27 +21,6 @@ function resetAllProgress() {
   quizStore.resetQuiz()
   settingsStore.resetSettings()
   vocabularyStore.loadVocabulary()
-}
-
-async function handleVocabularyExpansion() {
-  const topic = expansionTopic.value.trim()
-
-  if (!topic) {
-    resultTone.value = 'error'
-    resultMessage.value = 'Enter a TOEIC topic before requesting new vocabulary.'
-    return
-  }
-
-  resultMessage.value = ''
-
-  try {
-    const result = await vocabularyStore.expandVocabulary(topic)
-    resultTone.value = 'success'
-    resultMessage.value = `Requested ${result.requestedCount} words for "${topic}". Added ${result.addedCount} new words and skipped ${result.skippedCount} duplicates.`
-  } catch (error) {
-    resultTone.value = 'error'
-    resultMessage.value = error instanceof Error ? error.message : 'Vocabulary expansion failed.'
-  }
 }
 </script>
 
@@ -127,93 +88,11 @@ async function handleVocabularyExpansion() {
       </SectionCard>
     </div>
 
-    <SectionCard
-      title="Vocabulary expansion"
-      subtitle="Request 20 new TOEIC-level words from the backend API and append them to the local vocabulary set."
-      style="margin-top: 18px"
-    >
-      <div class="field">
-        <label for="expansion-topic">Topic</label>
-        <select id="expansion-topic" v-model="expansionTopic">
-          <option v-for="cat in TOEIC_CATEGORIES" :key="cat.value" :value="cat.value">
-            {{ cat.label }}
-          </option>
-        </select>
-      </div>
-      <p class="muted expansion-note">
-        Start the backend with `npm run dev:api` so the frontend can call `/api/vocabulary/expand` during development.
-      </p>
-      <div class="button-row" style="margin-top: 18px">
-        <button class="button" :disabled="isExpanding" @click="handleVocabularyExpansion()">
-          {{ isExpanding ? 'Expanding vocabulary...' : 'Expand vocabulary' }}
-        </button>
-      </div>
-      <div v-if="isExpanding" class="expansion-progress">
-        <div class="expansion-progress__bar">
-          <div class="expansion-progress__fill" :style="{ width: expansionProgress + '%' }" />
-        </div>
-        <p class="expansion-progress__label">{{ expansionStatus }}</p>
-      </div>
-      <p
-        v-if="resultMessage"
-        class="expansion-status"
-        :class="`expansion-status--${resultTone}`"
-      >
-        {{ resultMessage }}
-      </p>
-    </SectionCard>
+
   </section>
 </template>
 
 <style scoped>
-.expansion-note {
-  margin: 14px 0 0;
-}
-
-.expansion-progress {
-  margin: 16px 0 0;
-}
-
-.expansion-progress__bar {
-  height: 8px;
-  border-radius: 999px;
-  background: var(--tone-neutral-soft);
-  overflow: hidden;
-}
-
-.expansion-progress__fill {
-  height: 100%;
-  border-radius: 999px;
-  background: var(--accent);
-  transition: width 0.3s ease;
-}
-
-.expansion-progress__label {
-  margin: 8px 0 0;
-  font-size: 0.85rem;
-  color: var(--text-muted);
-}
-
-.expansion-status {
-  margin: 16px 0 0;
-  padding: 12px 14px;
-  border: 1px solid var(--border);
-  border-radius: var(--border-radius-md);
-  background: var(--surface);
-}
-
-.expansion-status--success {
-  border-color: var(--success);
-  background: var(--success-soft);
-  color: var(--success);
-}
-
-.expansion-status--error {
-  border-color: var(--danger);
-  background: var(--danger-soft);
-  color: var(--danger);
-}
-
 .theme-setting {
   display: grid;
   gap: 10px;

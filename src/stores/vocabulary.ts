@@ -122,7 +122,7 @@ export const useVocabularyStore = defineStore('vocabulary', {
         this.errorMessage = error instanceof Error ? error.message : 'Unknown loading error.'
       }
     },
-    async expandVocabulary(topic: string) {
+    async expandVocabulary(topic: string, includeImages = true) {
       this.errorMessage = null
       this.isExpanding = true
       this.expansionStatus = ''
@@ -130,6 +130,7 @@ export const useVocabularyStore = defineStore('vocabulary', {
 
       const TARGET = 20
       const MAX_RETRIES = 3
+      const totalSteps = includeImages ? 3 : 2
 
       try {
         const existingCustomWords = storageService.getCustomVocabulary()
@@ -143,7 +144,7 @@ export const useVocabularyStore = defineStore('vocabulary', {
         let retries = 0
 
         // Step 1: AI generation
-        this.expansionStatus = 'Step 1/3: AI is generating words…'
+        this.expansionStatus = `Step 1/${totalSteps}: AI is generating words…`
         this.expansionProgress = 5
 
         while (addedCount < TARGET && retries < MAX_RETRIES) {
@@ -170,31 +171,33 @@ export const useVocabularyStore = defineStore('vocabulary', {
           else retries = 0
         }
 
-        this.expansionProgress = 30
+        this.expansionProgress = includeImages ? 30 : 70
 
-        // Step 2: Fetch images in parallel (batch)
-        const wordsWithPrompts = newWords.filter((w) => w.image_prompt)
-        this.expansionStatus = `Step 2/3: Fetching ${wordsWithPrompts.length} images in parallel…`
-        this.expansionProgress = 35
+        // Step 2 (optional): Fetch images in parallel (batch)
+        if (includeImages) {
+          const wordsWithPrompts = newWords.filter((w) => w.image_prompt)
+          this.expansionStatus = `Step 2/${totalSteps}: Fetching ${wordsWithPrompts.length} images in parallel…`
+          this.expansionProgress = 35
 
-        if (wordsWithPrompts.length > 0) {
-          const prompts = wordsWithPrompts.map((w) => w.image_prompt!)
-          const imageUrls = await fetchImagesInBatch(prompts)
+          if (wordsWithPrompts.length > 0) {
+            const prompts = wordsWithPrompts.map((w) => w.image_prompt!)
+            const imageUrls = await fetchImagesInBatch(prompts)
 
-          for (let i = 0; i < wordsWithPrompts.length; i++) {
-            const url = imageUrls[i]
-            if (url) {
-              wordsWithPrompts[i].image_url = url
-              const stored = nextCustomWords.find((cw) => cw.id === wordsWithPrompts[i].id)
-              if (stored) stored.image_url = url
+            for (let i = 0; i < wordsWithPrompts.length; i++) {
+              const url = imageUrls[i]
+              if (url) {
+                wordsWithPrompts[i].image_url = url
+                const stored = nextCustomWords.find((cw) => cw.id === wordsWithPrompts[i].id)
+                if (stored) stored.image_url = url
+              }
             }
           }
+
+          this.expansionProgress = 85
         }
 
-        this.expansionProgress = 85
-
-        // Step 3: Save & sync
-        this.expansionStatus = 'Step 3/3: Saving and syncing…'
+        // Final step: Save & sync
+        this.expansionStatus = `Step ${totalSteps}/${totalSteps}: Saving and syncing…`
         this.expansionProgress = 90
 
         storageService.saveCustomVocabulary(nextCustomWords)

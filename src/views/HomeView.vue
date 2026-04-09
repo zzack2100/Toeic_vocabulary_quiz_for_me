@@ -1,7 +1,9 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
+import { storeToRefs } from 'pinia'
 import { RouterLink } from 'vue-router'
 import StatCard from '../components/dashboard/StatCard.vue'
+import SectionCard from '../components/common/SectionCard.vue'
 import ActivityHeatmap from '../components/dashboard/ActivityHeatmap.vue'
 import AuthCard from '../components/auth/AuthCard.vue'
 import { useVocabularyStore } from '../stores/vocabulary'
@@ -13,6 +15,46 @@ const vocabularyStore = useVocabularyStore()
 const reviewStore = useReviewStore()
 const mistakesStore = useMistakesStore()
 const settingsStore = useSettingsStore()
+
+const { isExpanding, expansionStatus, expansionProgress } = storeToRefs(vocabularyStore)
+
+const TOEIC_CATEGORIES = [
+  { value: 'General Business', label: '商業 (Business)' },
+  { value: 'Marketing & Sales', label: '市場行銷 (Marketing)' },
+  { value: 'Personnel & HR', label: '人事管理 (Personnel)' },
+  { value: 'Finance & Banking', label: '金融財務 (Finance)' },
+  { value: 'Office Procedures', label: '辦公實務 (Office)' },
+  { value: 'Purchasing & Logistics', label: '採購物流 (Logistics)' },
+  { value: 'Travel & Transport', label: '旅遊交通 (Travel)' },
+  { value: 'Entertainment & Social', label: '社交與餐飲 (Social)' },
+  { value: 'Healthcare', label: '醫療保健 (Health)' },
+]
+
+const expansionTopic = ref('General Business')
+const includeImages = ref(false)
+const resultMessage = ref('')
+const resultTone = ref<'neutral' | 'success' | 'error'>('neutral')
+
+async function handleVocabularyExpansion() {
+  const topic = expansionTopic.value.trim()
+
+  if (!topic) {
+    resultTone.value = 'error'
+    resultMessage.value = 'Enter a TOEIC topic before requesting new vocabulary.'
+    return
+  }
+
+  resultMessage.value = ''
+
+  try {
+    const result = await vocabularyStore.expandVocabulary(topic, includeImages.value)
+    resultTone.value = 'success'
+    resultMessage.value = `Requested ${result.requestedCount} words for "${topic}". Added ${result.addedCount} new words and skipped ${result.skippedCount} duplicates.`
+  } catch (error) {
+    resultTone.value = 'error'
+    resultMessage.value = error instanceof Error ? error.message : 'Vocabulary expansion failed.'
+  }
+}
 
 const stats = computed(() => [
   {
@@ -108,6 +150,46 @@ const dashboardActions = computed(() => [
 
     <ActivityHeatmap style="margin-top: 18px" />
 
+    <SectionCard
+      title="Vocabulary expansion"
+      subtitle="Request 20 new TOEIC-level words from the backend API and append them to the local vocabulary set."
+      style="margin-top: 18px"
+    >
+      <div class="field">
+        <label for="expansion-topic">Topic</label>
+        <select id="expansion-topic" v-model="expansionTopic">
+          <option v-for="cat in TOEIC_CATEGORIES" :key="cat.value" :value="cat.value">
+            {{ cat.label }}
+          </option>
+        </select>
+      </div>
+      <div class="field include-images-field" style="margin-top: 14px">
+        <label class="include-images-label">
+          <input type="checkbox" v-model="includeImages" class="include-images-checkbox" />
+          Include images
+        </label>
+        <p class="muted include-images-hint">Fetches an illustrative photo for each word from Unsplash. Slower but helps visual memory.</p>
+      </div>
+      <div class="button-row" style="margin-top: 18px">
+        <button class="button" :disabled="isExpanding" @click="handleVocabularyExpansion()">
+          {{ isExpanding ? 'Expanding vocabulary...' : 'Expand vocabulary' }}
+        </button>
+      </div>
+      <div v-if="isExpanding" class="expansion-progress">
+        <div class="expansion-progress__bar">
+          <div class="expansion-progress__fill" :style="{ width: expansionProgress + '%' }" />
+        </div>
+        <p class="expansion-progress__label">{{ expansionStatus }}</p>
+      </div>
+      <p
+        v-if="resultMessage"
+        class="expansion-status"
+        :class="`expansion-status--${resultTone}`"
+      >
+        {{ resultMessage }}
+      </p>
+    </SectionCard>
+
     <div class="grid grid--two" style="margin-top: 18px">
       <article
         v-for="action in dashboardActions"
@@ -151,6 +233,70 @@ const dashboardActions = computed(() => [
 </template>
 
 <style scoped>
+.expansion-progress {
+  margin: 16px 0 0;
+}
+
+.expansion-progress__bar {
+  height: 8px;
+  border-radius: 999px;
+  background: var(--tone-neutral-soft);
+  overflow: hidden;
+}
+
+.expansion-progress__fill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--accent);
+  transition: width 0.3s ease;
+}
+
+.expansion-progress__label {
+  margin: 8px 0 0;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.expansion-status {
+  margin: 16px 0 0;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--border-radius-md);
+  background: var(--surface);
+}
+
+.expansion-status--success {
+  border-color: var(--success);
+  background: var(--success-soft);
+  color: var(--success);
+}
+
+.expansion-status--error {
+  border-color: var(--danger);
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+.include-images-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.include-images-checkbox {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+.include-images-hint {
+  margin: 4px 0 0;
+  font-size: 0.82rem;
+}
+
 .dashboard-action-card {
   display: grid;
   gap: 18px;
