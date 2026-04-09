@@ -61,6 +61,11 @@ app.use(
 )
 app.use(express.json())
 
+app.use((_req, res, next) => {
+  res.setHeader('Cross-Origin-Opener-Policy', 'same-origin-allow-popups')
+  next()
+})
+
 app.get('/api/health', (_request, response) => {
   response.json({ status: 'ok' })
 })
