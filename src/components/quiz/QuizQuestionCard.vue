@@ -108,7 +108,7 @@ function speakWord() {
     <div class="question-card__meta">
       <span class="badge">Question {{ questionNumber }} / {{ totalQuestions }}</span>
       <div v-if="imageUrl" class="question-card__image-container">
-        <img :src="imageUrl" :alt="question.prompt" class="question-card__image" loading="lazy" />
+        <img :src="imageUrl" :alt="question.prompt" class="question-card__image" loading="lazy" referrerpolicy="no-referrer" />
       </div>
       <div class="question-card__copy">
         <div v-if="partOfSpeech || definition" class="question-card__supporting">
