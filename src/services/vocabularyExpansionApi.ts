@@ -5,7 +5,7 @@ interface ExpandVocabularyResponse extends VocabularySeed {
   tags: string[]
 }
 
-export async function requestVocabularyExpansion(topic: string, includeImages = false, existingWords: string[] = []): Promise<VocabularySeed[]> {
+export async function requestVocabularyExpansion(topic: string): Promise<VocabularySeed[]> {
   const controller = new AbortController()
   const timeout = setTimeout(() => controller.abort(), 20000)
 
@@ -15,7 +15,7 @@ export async function requestVocabularyExpansion(topic: string, includeImages = 
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ topic, includeImages, existingWords }),
+      body: JSON.stringify({ topic }),
       signal: controller.signal,
     })
 

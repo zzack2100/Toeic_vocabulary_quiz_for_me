@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { requestVocabularyExpansion } from '../services/vocabularyExpansionApi'
+import { fetchImagesInBatch, requestVocabularyExpansion } from '../services/vocabularyExpansionApi'
 import { fetchVocabulary, fetchWordsFromCloud, syncWordsToCloud } from '../services/vocabularyService'
 import { storageService } from '../services/storageService'
 import { createDefaultMemoryMetadata } from '../utils/spacedRepetition'
@@ -134,29 +134,42 @@ export const useVocabularyStore = defineStore('vocabulary', {
         const existingWordNames = new Set(this.words.map((word) => word.word.toLowerCase()))
         const nextCustomWords = [...existingCustomWords]
 
-        // Step 1: AI generation (single request)
-        this.expansionStatus = `Step 1/2: AI is generating words${includeImages ? ' and fetching images' : ''}…`
+        // Step 1: AI generation (generate many, keep few)
+        this.expansionStatus = `Step 1/3: AI is generating candidate words…`
         this.expansionProgress = 5
 
-        const existingWordStrings = this.words.map((w) => w.word)
-        const expandedWords = await requestVocabularyExpansion(topic, includeImages, existingWordStrings)
-        let addedCount = 0
+        const expandedWords = await requestVocabularyExpansion(topic)
+        const generatedCount = expandedWords.length
 
-        for (const word of expandedWords) {
-          if (existingIds.has(word.id) || existingWordNames.has(word.word.toLowerCase())) {
-            continue
+        // Filter out duplicates and keep only the first 5 unique new words
+        const filteredWords = expandedWords.filter(
+          (word) => !existingIds.has(word.id) && !existingWordNames.has(word.word.toLowerCase()),
+        )
+        const newWordsToKeep = filteredWords.slice(0, 5)
+
+        this.expansionProgress = 40
+
+        // Step 2: Fetch images only for the kept words
+        if (includeImages && newWordsToKeep.length > 0) {
+          this.expansionStatus = `Step 2/3: Fetching images for ${newWordsToKeep.length} words…`
+          const prompts = newWordsToKeep.map((w) => w.image_prompt || w.word)
+          const imageUrls = await fetchImagesInBatch(prompts)
+          for (let i = 0; i < newWordsToKeep.length; i++) {
+            newWordsToKeep[i] = { ...newWordsToKeep[i], image_url: imageUrls[i] || '' }
           }
+        }
 
+        for (const word of newWordsToKeep) {
           nextCustomWords.push(word)
           existingIds.add(word.id)
           existingWordNames.add(word.word.toLowerCase())
-          addedCount += 1
         }
+        const addedCount = newWordsToKeep.length
 
         this.expansionProgress = 70
 
-        // Step 2: Save & sync
-        this.expansionStatus = 'Step 2/2: Saving and syncing…'
+        // Step 3: Save & sync
+        this.expansionStatus = 'Step 3/3: Saving and syncing…'
         this.expansionProgress = 90
 
         storageService.saveCustomVocabulary(nextCustomWords)
@@ -174,9 +187,9 @@ export const useVocabularyStore = defineStore('vocabulary', {
         this.expansionStatus = ''
 
         return {
-          requestedCount: expandedWords.length,
+          generatedCount,
           addedCount,
-          skippedCount: expandedWords.length - addedCount,
+          skippedCount: generatedCount - addedCount,
         }
       } catch (error) {
         this.errorMessage = error instanceof Error ? error.message : 'Vocabulary expansion failed.'

@@ -49,7 +49,7 @@ async function handleVocabularyExpansion() {
   try {
     const result = await vocabularyStore.expandVocabulary(topic, includeImages.value)
     resultTone.value = 'success'
-    resultMessage.value = `Requested ${result.requestedCount} words for "${topic}". Added ${result.addedCount} new words and skipped ${result.skippedCount} duplicates.`
+    resultMessage.value = `Generated ${result.generatedCount} candidates for "${topic}". Kept ${result.addedCount} new unique words (${result.skippedCount} duplicates filtered).`
   } catch (error) {
     resultTone.value = 'error'
     resultMessage.value = error instanceof Error ? error.message : 'Vocabulary expansion failed.'
@@ -152,7 +152,7 @@ const dashboardActions = computed(() => [
 
     <SectionCard
       title="Vocabulary expansion"
-      subtitle="Request 5 new TOEIC-level words from the backend API and append them to the local vocabulary set."
+      subtitle="Generate 15 candidates and keep up to 5 unique new TOEIC-level words."
       style="margin-top: 18px"
     >
       <div class="field">
