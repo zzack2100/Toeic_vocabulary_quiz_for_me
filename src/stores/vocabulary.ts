@@ -128,53 +128,34 @@ export const useVocabularyStore = defineStore('vocabulary', {
       this.expansionStatus = ''
       this.expansionProgress = 0
 
-      const TARGET = 5
-      const MAX_RETRIES = 3
-      const totalSteps = 2
-
       try {
         const existingCustomWords = storageService.getCustomVocabulary()
         const existingIds = new Set(existingCustomWords.map((word) => word.id))
         const existingWordNames = new Set(this.words.map((word) => word.word.toLowerCase()))
         const nextCustomWords = [...existingCustomWords]
-        const newWords: VocabularySeed[] = []
 
-        let addedCount = 0
-        let totalRequested = 0
-        let retries = 0
-
-        // Step 1: AI generation (+ images if includeImages)
-        this.expansionStatus = `Step 1/${totalSteps}: AI is generating words${includeImages ? ' and fetching images' : ''}…`
+        // Step 1: AI generation (single request)
+        this.expansionStatus = `Step 1/2: AI is generating words${includeImages ? ' and fetching images' : ''}…`
         this.expansionProgress = 5
 
-        while (addedCount < TARGET && retries < MAX_RETRIES) {
-          const expandedWords = await requestVocabularyExpansion(topic, includeImages)
-          totalRequested += expandedWords.length
-          let addedThisRound = 0
+        const expandedWords = await requestVocabularyExpansion(topic, includeImages)
+        let addedCount = 0
 
-          for (const word of expandedWords) {
-            if (existingIds.has(word.id) || existingWordNames.has(word.word.toLowerCase())) {
-              continue
-            }
-
-            nextCustomWords.push(word)
-            newWords.push(word)
-            existingIds.add(word.id)
-            existingWordNames.add(word.word.toLowerCase())
-            addedCount += 1
-            addedThisRound += 1
-
-            if (addedCount >= TARGET) break
+        for (const word of expandedWords) {
+          if (existingIds.has(word.id) || existingWordNames.has(word.word.toLowerCase())) {
+            continue
           }
 
-          if (addedThisRound === 0) retries += 1
-          else retries = 0
+          nextCustomWords.push(word)
+          existingIds.add(word.id)
+          existingWordNames.add(word.word.toLowerCase())
+          addedCount += 1
         }
 
         this.expansionProgress = 70
 
         // Step 2: Save & sync
-        this.expansionStatus = `Step 2/${totalSteps}: Saving and syncing…`
+        this.expansionStatus = 'Step 2/2: Saving and syncing…'
         this.expansionProgress = 90
 
         storageService.saveCustomVocabulary(nextCustomWords)
@@ -192,9 +173,9 @@ export const useVocabularyStore = defineStore('vocabulary', {
         this.expansionStatus = ''
 
         return {
-          requestedCount: totalRequested,
+          requestedCount: expandedWords.length,
           addedCount,
-          skippedCount: totalRequested - addedCount,
+          skippedCount: expandedWords.length - addedCount,
         }
       } catch (error) {
         this.errorMessage = error instanceof Error ? error.message : 'Vocabulary expansion failed.'
