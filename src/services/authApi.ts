@@ -37,4 +37,18 @@ export async function register(email: string, password: string): Promise<AuthRes
   return data
 }
 
+export async function loginWithGoogle(credential: string): Promise<AuthResponse> {
+  const response = await fetch('/api/auth/google', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ credential }),
+  })
 
+  const data = (await response.json()) as AuthResponse
+
+  if (!response.ok) {
+    throw new Error(data.error ?? 'Google login failed.')
+  }
+
+  return data
+}

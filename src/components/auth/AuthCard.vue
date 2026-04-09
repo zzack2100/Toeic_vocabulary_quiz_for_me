@@ -6,6 +6,7 @@ import { login, register } from '../../services/authApi'
 import { syncWordsToCloud } from '../../services/vocabularyService'
 import { useAuthStore } from '../../stores/auth'
 import { useVocabularyStore } from '../../stores/vocabulary'
+import { GoogleLogin } from 'vue3-google-login'
 
 const authStore = useAuthStore()
 const vocabularyStore = useVocabularyStore()
@@ -50,6 +51,18 @@ function handleLogout() {
   authStatus.value = ''
 }
 
+async function onGoogleLogin(response: { credential: string }) {
+  authStatus.value = ''
+  try {
+    await authStore.handleGoogleAuth(response.credential)
+    authStatusTone.value = 'success'
+    authStatus.value = 'Logged in with Google successfully.'
+  } catch (error) {
+    authStatusTone.value = 'error'
+    authStatus.value = error instanceof Error ? error.message : 'Google login failed.'
+  }
+}
+
 async function handleSyncNow() {
   if (!authStore.token) return
   isSyncing.value = true
@@ -82,7 +95,12 @@ async function handleSyncNow() {
         <button class="button" @click="handleLogin()">Login</button>
         <button class="button button--ghost" @click="handleRegister()">Register</button>
       </div>
-
+      <div class="auth-separator">
+        <span class="auth-separator__line"></span>
+        <span class="auth-separator__text">or</span>
+        <span class="auth-separator__line"></span>
+      </div>
+      <GoogleLogin :callback="onGoogleLogin" />
     </template>
     <template v-else>
       <div class="list">
@@ -107,6 +125,24 @@ async function handleSyncNow() {
 </template>
 
 <style scoped>
+.auth-separator {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 18px 0;
+}
+
+.auth-separator__line {
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+.auth-separator__text {
+  color: var(--text-muted, #888);
+  font-size: 0.85rem;
+}
+
 .auth-status {
   margin: 16px 0 0;
   padding: 12px 14px;

@@ -33,7 +33,20 @@ const apiLimiter = rateLimit({
 
 const app = express()
 
-app.use(helmet())
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'", "'unsafe-inline'", 'https://accounts.google.com'],
+        styleSrc: ["'self'", "'unsafe-inline'", 'https://accounts.google.com'],
+        frameSrc: ["'self'", 'https://accounts.google.com'],
+        connectSrc: ["'self'", 'https://accounts.google.com'],
+        imgSrc: ["'self'", 'data:', 'https://images.unsplash.com'],
+      },
+    },
+  }),
+)
 app.use(
   cors({
     origin(origin, callback) {
