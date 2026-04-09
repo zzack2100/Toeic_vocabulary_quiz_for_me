@@ -67,3 +67,14 @@ export async function syncWordsToCloud(words: ToeicWord[], token: string): Promi
     throw new Error('Failed to sync words to cloud.')
   }
 }
+
+export async function resetDatabaseProgress(token: string): Promise<void> {
+  const response = await fetch('/api/words/reset-progress', {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}` },
+  })
+
+  if (!response.ok) {
+    throw new Error('Failed to reset progress in database.')
+  }
+}

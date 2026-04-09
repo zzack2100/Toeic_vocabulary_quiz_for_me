@@ -3,11 +3,14 @@ import { storeToRefs } from 'pinia'
 import SectionCard from '../components/common/SectionCard.vue'
 import AuthCard from '../components/auth/AuthCard.vue'
 import { storageService } from '../services/storageService'
+import { resetDatabaseProgress } from '../services/vocabularyService'
 import { useMistakesStore } from '../stores/mistakes'
 import { useQuizStore } from '../stores/quiz'
+import { useAuthStore } from '../stores/auth'
 import { useSettingsStore } from '../stores/settings'
 import { useVocabularyStore } from '../stores/vocabulary'
 
+const authStore = useAuthStore()
 const settingsStore = useSettingsStore()
 const vocabularyStore = useVocabularyStore()
 const mistakesStore = useMistakesStore()
@@ -15,7 +18,10 @@ const quizStore = useQuizStore()
 
 const { quizSize, resetMemoryOnWrong, theme, } = storeToRefs(settingsStore)
 
-function resetAllProgress() {
+async function resetAllProgress() {
+  if (authStore.isAuthenticated) {
+    await resetDatabaseProgress(authStore.token!)
+  }
   storageService.resetAll()
   window.location.reload()
 }

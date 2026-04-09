@@ -47,3 +47,24 @@ wordsRouter.post('/sync', async (req, res) => {
     res.status(500).json({ error: 'Sync failed.' })
   }
 })
+
+wordsRouter.post('/reset-progress', async (req, res) => {
+  try {
+    await Word.updateMany(
+      { userId: req.user.userId },
+      {
+        $set: {
+          'memory.times_seen': 0,
+          'memory.times_correct': 0,
+          'memory.memory_level': 0,
+          'memory.last_tested': null,
+          'memory.is_in_mistake_notebook': false,
+        },
+      },
+    )
+    res.json({ message: 'Progress reset successfully.' })
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({ error: 'Failed to reset progress.' })
+  }
+})
