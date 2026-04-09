@@ -46,7 +46,7 @@ describe('vocabularyExpansionService', () => {
     const result = await expandVocabularyByTopic('Business Negotiations')
 
     expect(createCompletionMock).not.toHaveBeenCalled()
-    expect(result.words).toHaveLength(20)
+    expect(result.words).toHaveLength(5)
     expect(result.words.every((item) => item.difficulty === 'medium')).toBe(true)
     expect(result.words.every((item) => item.tags.includes('Business Negotiations'))).toBe(true)
   })
@@ -57,7 +57,7 @@ describe('vocabularyExpansionService', () => {
       choices: [
         {
           message: {
-            content: JSON.stringify(Array.from({ length: 20 }, (_, index) => buildGeneratedItem(index + 1))),
+            content: JSON.stringify(Array.from({ length: 5 }, (_, index) => buildGeneratedItem(index + 1))),
           },
         },
       ],
@@ -67,7 +67,7 @@ describe('vocabularyExpansionService', () => {
 
     expect(buildLlmRequest('Financial Reports').model).toBe('gpt-4o-mini')
     expect(createCompletionMock).toHaveBeenCalledTimes(1)
-    expect(result.words).toHaveLength(20)
+    expect(result.words).toHaveLength(5)
     expect(result.words[0]).toMatchObject({
       word: 'generated-word-1',
       translation_zh_TW: '翻譯-1',
@@ -89,7 +89,7 @@ describe('vocabularyExpansionService', () => {
 
     expect(createCompletionMock).toHaveBeenCalledTimes(1)
     expect(consoleWarnSpy).toHaveBeenCalledTimes(1)
-    expect(result.words).toHaveLength(20)
+    expect(result.words).toHaveLength(5)
     expect(result.words.every((item) => item.tags.includes('Travel and Transport'))).toBe(true)
   })
 })

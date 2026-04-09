@@ -6,21 +6,29 @@ interface ExpandVocabularyResponse extends VocabularySeed {
 }
 
 export async function requestVocabularyExpansion(topic: string, includeImages = false): Promise<VocabularySeed[]> {
-  const response = await fetch('/api/vocabulary/expand', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ topic, includeImages }),
-  })
+  const controller = new AbortController()
+  const timeout = setTimeout(() => controller.abort(), 20000)
 
-  if (!response.ok) {
-    const errorPayload = (await response.json().catch(() => null)) as { message?: string } | null
+  try {
+    const response = await fetch('/api/vocabulary/expand', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ topic, includeImages }),
+      signal: controller.signal,
+    })
 
-    throw new Error(errorPayload?.message ?? 'Unable to expand vocabulary for the requested topic.')
+    if (!response.ok) {
+      const errorPayload = (await response.json().catch(() => null)) as { message?: string } | null
+
+      throw new Error(errorPayload?.message ?? 'Unable to expand vocabulary for the requested topic.')
+    }
+
+    return (await response.json()) as ExpandVocabularyResponse[]
+  } finally {
+    clearTimeout(timeout)
   }
-
-  return (await response.json()) as ExpandVocabularyResponse[]
 }
 
 export async function fetchImageForWord(imagePrompt: string): Promise<string> {

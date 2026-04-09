@@ -152,7 +152,7 @@ const dashboardActions = computed(() => [
 
     <SectionCard
       title="Vocabulary expansion"
-      subtitle="Request 20 new TOEIC-level words from the backend API and append them to the local vocabulary set."
+      subtitle="Request 5 new TOEIC-level words from the backend API and append them to the local vocabulary set."
       style="margin-top: 18px"
     >
       <div class="field">

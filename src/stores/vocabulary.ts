@@ -128,7 +128,7 @@ export const useVocabularyStore = defineStore('vocabulary', {
       this.expansionStatus = ''
       this.expansionProgress = 0
 
-      const TARGET = 20
+      const TARGET = 5
       const MAX_RETRIES = 3
       const totalSteps = 2
 
