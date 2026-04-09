@@ -17,10 +17,7 @@ const { quizSize, resetMemoryOnWrong, theme, } = storeToRefs(settingsStore)
 
 function resetAllProgress() {
   storageService.resetAll()
-  mistakesStore.clearNotebook()
-  quizStore.resetQuiz()
-  settingsStore.resetSettings()
-  vocabularyStore.loadVocabulary()
+  window.location.reload()
 }
 </script>
 
