@@ -63,7 +63,9 @@ export const storageService = {
     writeJson(KEYS.customVocabulary, words)
   },
   resetAll() {
-    Object.values(KEYS).forEach((key) => window.localStorage.removeItem(key))
+    Object.entries(KEYS).forEach(([name, key]) => {
+      if (name !== 'customVocabulary') window.localStorage.removeItem(key)
+    })
   },
   getActivityHistory(): string[] {
     return parseJson(KEYS.activityHistory, [])
