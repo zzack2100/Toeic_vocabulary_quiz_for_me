@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { requestVocabularyExpansion, fetchImagesInBatch } from '../services/vocabularyExpansionApi'
+import { requestVocabularyExpansion } from '../services/vocabularyExpansionApi'
 import { fetchVocabulary, fetchWordsFromCloud, syncWordsToCloud } from '../services/vocabularyService'
 import { storageService } from '../services/storageService'
 import { createDefaultMemoryMetadata } from '../utils/spacedRepetition'
@@ -130,7 +130,7 @@ export const useVocabularyStore = defineStore('vocabulary', {
 
       const TARGET = 20
       const MAX_RETRIES = 3
-      const totalSteps = includeImages ? 3 : 2
+      const totalSteps = 2
 
       try {
         const existingCustomWords = storageService.getCustomVocabulary()
@@ -143,12 +143,12 @@ export const useVocabularyStore = defineStore('vocabulary', {
         let totalRequested = 0
         let retries = 0
 
-        // Step 1: AI generation
-        this.expansionStatus = `Step 1/${totalSteps}: AI is generating words…`
+        // Step 1: AI generation (+ images if includeImages)
+        this.expansionStatus = `Step 1/${totalSteps}: AI is generating words${includeImages ? ' and fetching images' : ''}…`
         this.expansionProgress = 5
 
         while (addedCount < TARGET && retries < MAX_RETRIES) {
-          const expandedWords = await requestVocabularyExpansion(topic)
+          const expandedWords = await requestVocabularyExpansion(topic, includeImages)
           totalRequested += expandedWords.length
           let addedThisRound = 0
 
@@ -171,33 +171,10 @@ export const useVocabularyStore = defineStore('vocabulary', {
           else retries = 0
         }
 
-        this.expansionProgress = includeImages ? 30 : 70
+        this.expansionProgress = 70
 
-        // Step 2 (optional): Fetch images in parallel (batch)
-        if (includeImages) {
-          const wordsWithPrompts = newWords.filter((w) => w.image_prompt)
-          this.expansionStatus = `Step 2/${totalSteps}: Fetching ${wordsWithPrompts.length} images in parallel…`
-          this.expansionProgress = 35
-
-          if (wordsWithPrompts.length > 0) {
-            const prompts = wordsWithPrompts.map((w) => w.image_prompt!)
-            const imageUrls = await fetchImagesInBatch(prompts)
-
-            for (let i = 0; i < wordsWithPrompts.length; i++) {
-              const url = imageUrls[i]
-              if (url) {
-                wordsWithPrompts[i].image_url = url
-                const stored = nextCustomWords.find((cw) => cw.id === wordsWithPrompts[i].id)
-                if (stored) stored.image_url = url
-              }
-            }
-          }
-
-          this.expansionProgress = 85
-        }
-
-        // Final step: Save & sync
-        this.expansionStatus = `Step ${totalSteps}/${totalSteps}: Saving and syncing…`
+        // Step 2: Save & sync
+        this.expansionStatus = `Step 2/${totalSteps}: Saving and syncing…`
         this.expansionProgress = 90
 
         storageService.saveCustomVocabulary(nextCustomWords)

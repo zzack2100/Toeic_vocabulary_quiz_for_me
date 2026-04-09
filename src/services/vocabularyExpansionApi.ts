@@ -5,13 +5,13 @@ interface ExpandVocabularyResponse extends VocabularySeed {
   tags: string[]
 }
 
-export async function requestVocabularyExpansion(topic: string): Promise<VocabularySeed[]> {
+export async function requestVocabularyExpansion(topic: string, includeImages = false): Promise<VocabularySeed[]> {
   const response = await fetch('/api/vocabulary/expand', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ topic }),
+    body: JSON.stringify({ topic, includeImages }),
   })
 
   if (!response.ok) {

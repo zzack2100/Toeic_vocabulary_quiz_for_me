@@ -438,22 +438,25 @@ export function buildLlmRequest(topic) {
   }
 }
 
-export async function expandVocabularyByTopic(topic) {
-  try {
-    const words = await expandVocabularyWithOpenAi(topic)
+export async function expandVocabularyByTopic(topic, includeImages = false) {
+  let words
 
-    if (words) {
-      return {
-        words,
-        llmRequest: buildLlmRequest(topic),
-      }
-    }
+  try {
+    words = await expandVocabularyWithOpenAi(topic)
   } catch (error) {
     console.warn('Falling back to mock TOEIC vocabulary expansion.', error)
   }
 
+  if (!words) {
+    words = buildMockVocabulary(topic)
+  }
+
+  if (includeImages) {
+    words = await resolveImageUrls(words)
+  }
+
   return {
-    words: buildMockVocabulary(topic),
+    words,
     llmRequest: buildLlmRequest(topic),
   }
 }
