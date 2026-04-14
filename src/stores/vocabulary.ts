@@ -200,6 +200,61 @@ export const useVocabularyStore = defineStore('vocabulary', {
         this.isExpanding = false
       }
     },
+    async importFromTextFile(file: File): Promise<{ addedCount: number; skippedCount: number }> {
+      const text = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader()
+        reader.onload = () => resolve(reader.result as string)
+        reader.onerror = () => reject(new Error('Failed to read file'))
+        reader.readAsText(file)
+      })
+
+      const lines = text.split('\n').map((l) => l.trim()).filter((l) => l.length > 0)
+      const existingNames = new Set(this.words.map((w) => w.word.toLowerCase()))
+      const customWords = storageService.getCustomVocabulary()
+      let addedCount = 0
+      let skippedCount = 0
+
+      for (const line of lines) {
+        const commaIdx = line.indexOf(',')
+        const dashIdx = line.indexOf(' - ')
+        const separatorIdx = commaIdx !== -1 ? commaIdx : dashIdx
+        if (separatorIdx === -1) {
+          skippedCount++
+          continue
+        }
+
+        const sepLen = commaIdx !== -1 ? 1 : 3
+        const word = line.slice(0, separatorIdx).trim()
+        const translation = line.slice(separatorIdx + sepLen).trim()
+
+        if (!word || !translation) {
+          skippedCount++
+          continue
+        }
+
+        if (existingNames.has(word.toLowerCase())) {
+          skippedCount++
+          continue
+        }
+
+        const seed: VocabularySeed = {
+          id: crypto.randomUUID(),
+          word,
+          translation_zh_TW: translation,
+          part_of_speech: '',
+          example_sentence: '',
+        }
+
+        customWords.push(seed)
+        existingNames.add(word.toLowerCase())
+        addedCount++
+      }
+
+      storageService.saveCustomVocabulary(customWords)
+      await this.loadVocabulary()
+
+      return { addedCount, skippedCount }
+    },
     getWordById(id: string) {
       return this.words.find((word) => word.id === id)
     },

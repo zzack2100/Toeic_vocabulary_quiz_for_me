@@ -35,6 +35,36 @@ const includeImages = ref(false)
 const resultMessage = ref('')
 const resultTone = ref<'neutral' | 'success' | 'error'>('neutral')
 
+const bulkFile = ref<File | null>(null)
+const bulkImporting = ref(false)
+const bulkMessage = ref('')
+const bulkTone = ref<'neutral' | 'success' | 'error'>('neutral')
+
+function onBulkFileChange(event: Event) {
+  const target = event.target as HTMLInputElement
+  bulkFile.value = target.files?.[0] ?? null
+}
+
+async function handleBulkImport() {
+  if (!bulkFile.value) {
+    bulkTone.value = 'error'
+    bulkMessage.value = 'Please select a .txt file first.'
+    return
+  }
+  bulkImporting.value = true
+  bulkMessage.value = ''
+  try {
+    const result = await vocabularyStore.importFromTextFile(bulkFile.value)
+    bulkTone.value = 'success'
+    bulkMessage.value = `Imported ${result.addedCount} new words. Skipped ${result.skippedCount} duplicates/invalid lines.`
+  } catch (error) {
+    bulkTone.value = 'error'
+    bulkMessage.value = error instanceof Error ? error.message : 'Bulk import failed.'
+  } finally {
+    bulkImporting.value = false
+  }
+}
+
 async function handleVocabularyExpansion() {
   const topic = expansionTopic.value.trim()
 
@@ -187,6 +217,29 @@ const dashboardActions = computed(() => [
         :class="`expansion-status--${resultTone}`"
       >
         {{ resultMessage }}
+      </p>
+    </SectionCard>
+
+    <SectionCard
+      title="Manual Bulk Import"
+      subtitle="Upload a .txt file (format: word, translation) to add specific words instantly."
+      style="margin-top: 18px"
+    >
+      <div class="field">
+        <label for="bulk-file">Select file</label>
+        <input id="bulk-file" type="file" accept=".txt" @change="onBulkFileChange" />
+      </div>
+      <div class="button-row" style="margin-top: 18px">
+        <button class="button" :disabled="bulkImporting || !bulkFile" @click="handleBulkImport()">
+          {{ bulkImporting ? 'Importing…' : 'Import words' }}
+        </button>
+      </div>
+      <p
+        v-if="bulkMessage"
+        class="expansion-status"
+        :class="`expansion-status--${bulkTone}`"
+      >
+        {{ bulkMessage }}
       </p>
     </SectionCard>
 
