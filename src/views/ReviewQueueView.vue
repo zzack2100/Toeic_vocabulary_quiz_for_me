@@ -9,6 +9,19 @@ const reviewStore = useReviewStore()
 const vocabularyStore = useVocabularyStore()
 
 const dueWords = computed(() => vocabularyStore.getWordsByIds(reviewStore.dueWordIds))
+
+function exportAllWordsToTxt() {
+  const text = vocabularyStore.words
+    .map((w) => `${w.word}, ${w.translation_zh_TW}`)
+    .join('\n')
+  const blob = new Blob([text], { type: 'text/plain;charset=utf-8' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = 'toeic_vocabulary_export.txt'
+  a.click()
+  URL.revokeObjectURL(url)
+}
 </script>
 
 <template>
@@ -19,9 +32,14 @@ const dueWords = computed(() => vocabularyStore.getWordsByIds(reviewStore.dueWor
         <h1 class="page-title">Review queue</h1>
         <p class="page-subtitle">Simplified spaced repetition uses timestamps and interval days stored per word.</p>
       </div>
-      <button class="button button--ghost" @click="reviewStore.calculateDueWords(vocabularyStore.words)">
-        Recalculate
-      </button>
+      <div class="button-row">
+        <button class="button button--ghost" @click="reviewStore.calculateDueWords(vocabularyStore.words)">
+          Recalculate
+        </button>
+        <button class="button button--ghost" @click="exportAllWordsToTxt()">
+          Export .txt
+        </button>
+      </div>
     </header>
 
     <SectionCard title="Due items" subtitle="Words whose next review date is now or overdue.">

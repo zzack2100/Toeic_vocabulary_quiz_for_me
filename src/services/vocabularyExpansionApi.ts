@@ -7,7 +7,7 @@ interface ExpandVocabularyResponse extends VocabularySeed {
 
 export async function requestVocabularyExpansion(topic: string): Promise<VocabularySeed[]> {
   const controller = new AbortController()
-  const timeout = setTimeout(() => controller.abort(), 20000)
+  const timeout = setTimeout(() => controller.abort(), 90000)
 
   try {
     const response = await fetch('/api/vocabulary/expand', {
@@ -26,6 +26,11 @@ export async function requestVocabularyExpansion(topic: string): Promise<Vocabul
     }
 
     return (await response.json()) as ExpandVocabularyResponse[]
+  } catch (err) {
+    if (err instanceof DOMException && err.name === 'AbortError') {
+      throw new Error('AI generation is taking too long due to database size. Please try again.')
+    }
+    throw err
   } finally {
     clearTimeout(timeout)
   }
