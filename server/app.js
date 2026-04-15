@@ -60,7 +60,7 @@ app.use(
     },
   }),
 )
-app.use(express.json())
+app.use(express.json({ limit: '5mb' }))
 
 app.use((_req, res, next) => {
   res.setHeader('Cross-Origin-Opener-Policy', 'same-origin-allow-popups')

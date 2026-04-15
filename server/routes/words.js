@@ -23,23 +23,25 @@ wordsRouter.post('/sync', async (req, res) => {
       return res.status(400).json({ error: 'Request body must be an array of words.' })
     }
 
-    const ops = words.map((w) =>
-      Word.updateOne(
-        { userId: req.user.userId, word: w.word },
-        {
+    const ops = words.map((w) => ({
+      updateOne: {
+        filter: { userId: req.user.userId, word: w.word },
+        update: {
           $set: {
             translation: w.translation,
             memory: w.memory,
+            image_url: w.image_url,
+            image_prompt: w.image_prompt,
           },
           $setOnInsert: {
             userId: req.user.userId,
             word: w.word,
           },
         },
-        { upsert: true },
-      ),
-    )
-    await Promise.all(ops)
+        upsert: true,
+      },
+    }))
+    await Word.bulkWrite(ops)
 
     res.json({ synced: words.length })
   } catch (error) {
