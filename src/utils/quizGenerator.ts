@@ -125,26 +125,46 @@ function selectWordsForQuiz(
     }
   }
 
+  // Filter out words the learner has already answered correctly more than once.
+  const eligiblePool = words.filter((word) => word.memory.times_correct <= 1)
+
+  // Fallback: if the filtered pool is too small, fill remaining slots with the
+  // oldest-reviewed mastered words so the quiz never breaks.
+  let pool: ToeicWord[]
+  if (eligiblePool.length >= targetSize) {
+    pool = eligiblePool
+  } else {
+    const eligibleIds = new Set(eligiblePool.map((w) => w.id))
+    const masteredWords = words
+      .filter((w) => !eligibleIds.has(w.id))
+      .sort((a, b) => {
+        const aDate = a.memory.last_reviewed_date ?? ''
+        const bDate = b.memory.last_reviewed_date ?? ''
+        return aDate.localeCompare(bDate)
+      })
+    pool = [...eligiblePool, ...masteredWords.slice(0, targetSize - eligiblePool.length)]
+  }
+
   const targets = calculateBucketTargets(targetSize)
 
-  const dueCandidates = words.filter((word) => isDue(word.memory.next_review_date))
+  const dueCandidates = pool.filter((word) => isDue(word.memory.next_review_date))
   const dueSelected = selectWeightedWords(dueCandidates, targets.due)
 
   const dueSelectedIds = new Set(dueSelected.map((word) => word.id))
-  const mistakeCandidates = words.filter(
+  const mistakeCandidates = pool.filter(
     (word) => !dueSelectedIds.has(word.id) && word.memory.is_in_mistake_notebook,
   )
   const mistakeSelected = selectWeightedWords(mistakeCandidates, targets.mistake)
 
   const reservedIds = new Set([...dueSelected, ...mistakeSelected].map((word) => word.id))
-  const freshCandidates = words.filter(
+  const freshCandidates = pool.filter(
     (word) => !reservedIds.has(word.id) && (word.memory.times_seen === 0 || isLowExposure(word)),
   )
   const freshSelected = selectWeightedWords(freshCandidates, targets.fresh)
 
   const currentSelection = [...dueSelected, ...mistakeSelected, ...freshSelected]
   const selectedIds = new Set(currentSelection.map((word) => word.id))
-  const remainingCandidates = [...words]
+  const remainingCandidates = [...pool]
     .filter((word) => !selectedIds.has(word.id))
     .sort((left, right) => getPriorityScore(right.memory) - getPriorityScore(left.memory))
 
