@@ -266,6 +266,22 @@ export const useVocabularyStore = defineStore('vocabulary', {
       this.words = this.words.map((word) => (word.id === wordId ? { ...word, memory } : word))
       this.persistProgress()
     },
+    clearMistakeNotebookFlags() {
+      this.words = this.words.map((word) => ({
+        ...word,
+        memory: {
+          ...word.memory,
+          is_in_mistake_notebook: false,
+        },
+      }))
+
+      // Persist cleared flags to localStorage synchronously.
+      const progress = this.words.reduce<ProgressMap>((accumulator, word) => {
+        accumulator[word.id] = word.memory
+        return accumulator
+      }, {})
+      storageService.saveProgress(progress)
+    },
     persistProgress() {
       const progress = this.words.reduce<ProgressMap>((accumulator, word) => {
         accumulator[word.id] = word.memory

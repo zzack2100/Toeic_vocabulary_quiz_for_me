@@ -7,6 +7,7 @@ import { fileURLToPath } from 'node:url'
 import { vocabularyRouter } from './routes/vocabulary.js'
 import { authRouter } from './routes/auth.js'
 import { wordsRouter } from './routes/words.js'
+import { mistakesRouter } from './routes/mistakes.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const distPath = path.join(__dirname, '..', 'dist')
@@ -73,6 +74,7 @@ app.get('/api/health', (_request, response) => {
 app.use('/api', apiLimiter)
 app.use('/api/auth', authLimiter, authRouter)
 app.use('/api/words', wordsRouter)
+app.use('/api/mistakes', mistakesRouter)
 app.use('/api/vocabulary', vocabularyRouter)
 
 // Serve Vue SPA static files

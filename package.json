@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "dev:api": "node server/index.js",
+    "dev:all": "npx concurrently -k \"npm run dev:api\" \"npm run dev\"",
     "build": "vue-tsc -b && vite build",
     "start": "node server/index.js",
     "start:api": "node server/index.js",

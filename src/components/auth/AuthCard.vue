@@ -6,10 +6,12 @@ import { login, register } from '../../services/authApi'
 import { syncWordsToCloud } from '../../services/vocabularyService'
 import { useAuthStore } from '../../stores/auth'
 import { useVocabularyStore } from '../../stores/vocabulary'
+import { useMistakesStore } from '../../stores/mistakes'
 import { GoogleLogin } from 'vue3-google-login'
 
 const authStore = useAuthStore()
 const vocabularyStore = useVocabularyStore()
+const mistakesStore = useMistakesStore()
 
 const { isAuthenticated, userEmail } = storeToRefs(authStore)
 
@@ -68,7 +70,21 @@ async function handleSyncNow() {
   isSyncing.value = true
   authStatus.value = ''
   try {
-    await syncWordsToCloud(vocabularyStore.words, authStore.token)
+    // Derive is_in_mistake_notebook from the actual notebook state rather than
+    // the word's cached flag.  This is the "sync state reset": if clearNotebook
+    // ran, mistakesStore.notebook is {}, so every word gets false — preventing
+    // stale cached flags from resurrecting deleted items in the cloud.
+    const reconciledWords = vocabularyStore.words.map((word) => ({
+      ...word,
+      memory: {
+        ...word.memory,
+        is_in_mistake_notebook:
+          word.id in mistakesStore.notebook
+            ? !mistakesStore.notebook[word.id].resolved
+            : false,
+      },
+    }))
+    await syncWordsToCloud(reconciledWords, authStore.token)
     authStatusTone.value = 'success'
     authStatus.value = `Synced ${vocabularyStore.words.length} words to cloud.`
   } catch (error) {

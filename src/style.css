@@ -166,6 +166,25 @@ button {
   border-color: var(--danger-border);
 }
 
+.alert {
+  margin: 0 0 24px;
+  padding: 14px 18px;
+  border-radius: 18px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  box-shadow: var(--shadow-soft);
+}
+
+.alert--error {
+  color: var(--danger);
+  border-color: var(--danger-border);
+  background: var(--danger-soft);
+}
+
+.alert p {
+  margin: 0;
+}
+
 .page-header {
   display: flex;
   justify-content: space-between;
