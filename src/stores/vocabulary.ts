@@ -215,17 +215,33 @@ export const useVocabularyStore = defineStore('vocabulary', {
       let skippedCount = 0
 
       for (const line of lines) {
-        const commaIdx = line.indexOf(',')
-        const dashIdx = line.indexOf(' - ')
-        const separatorIdx = commaIdx !== -1 ? commaIdx : dashIdx
-        if (separatorIdx === -1) {
-          skippedCount++
-          continue
-        }
+        let word = ''
+        let translation = ''
+        let partOfSpeech = ''
+        let exampleSentence = ''
 
-        const sepLen = commaIdx !== -1 ? 1 : 3
-        const word = line.slice(0, separatorIdx).trim()
-        const translation = line.slice(separatorIdx + sepLen).trim()
+        if (line.includes('|')) {
+          const parts = line.split('|').map((p) => p.trim())
+          if (parts.length < 2 || !parts[0] || !parts[1]) {
+            skippedCount++
+            continue
+          }
+          word = parts[0]
+          translation = parts[1]
+          if (parts.length >= 3 && parts[2]) partOfSpeech = parts[2]
+          if (parts.length >= 4 && parts[3]) exampleSentence = parts[3]
+        } else {
+          const commaIdx = line.indexOf(',')
+          const dashIdx = line.indexOf(' - ')
+          const separatorIdx = commaIdx !== -1 ? commaIdx : dashIdx
+          if (separatorIdx === -1) {
+            skippedCount++
+            continue
+          }
+          const sepLen = commaIdx !== -1 ? 1 : 3
+          word = line.slice(0, separatorIdx).trim()
+          translation = line.slice(separatorIdx + sepLen).trim()
+        }
 
         if (!word || !translation) {
           skippedCount++
@@ -241,8 +257,8 @@ export const useVocabularyStore = defineStore('vocabulary', {
           id: crypto.randomUUID(),
           word,
           translation_zh_TW: translation,
-          part_of_speech: '',
-          example_sentence: '',
+          part_of_speech: partOfSpeech,
+          example_sentence: exampleSentence,
         }
 
         customWords.push(seed)
