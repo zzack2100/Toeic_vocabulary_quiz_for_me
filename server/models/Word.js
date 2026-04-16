@@ -13,6 +13,6 @@ const wordSchema = new mongoose.Schema({
     memory_level: { type: Number, default: 0 },
     is_in_mistake_notebook: { type: Boolean, default: false },
   },
-})
+}, { timestamps: true })
 
 export const Word = mongoose.model('Word', wordSchema)

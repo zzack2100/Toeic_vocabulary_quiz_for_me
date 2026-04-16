@@ -3,15 +3,12 @@ import { ref } from 'vue'
 import { storeToRefs } from 'pinia'
 import SectionCard from '../common/SectionCard.vue'
 import { login, register } from '../../services/authApi'
-import { syncWordsToCloud } from '../../services/vocabularyService'
 import { useAuthStore } from '../../stores/auth'
 import { useVocabularyStore } from '../../stores/vocabulary'
-import { useMistakesStore } from '../../stores/mistakes'
 import { GoogleLogin } from 'vue3-google-login'
 
 const authStore = useAuthStore()
 const vocabularyStore = useVocabularyStore()
-const mistakesStore = useMistakesStore()
 
 const { isAuthenticated, userEmail } = storeToRefs(authStore)
 
@@ -27,9 +24,12 @@ async function handleLogin() {
     const data = await login(authEmail.value, authPassword.value)
     authStore.setSession(data.token!, authEmail.value)
     authStatusTone.value = 'success'
-    authStatus.value = 'Logged in successfully.'
+    authStatus.value = 'Logged in successfully. Syncing vocabulary…'
     authEmail.value = ''
     authPassword.value = ''
+    // Auto-pull latest vocabulary on login
+    await vocabularyStore.loadVocabulary()
+    authStatus.value = `Logged in. ${vocabularyStore.totalWords} words loaded.`
   } catch (error) {
     authStatusTone.value = 'error'
     authStatus.value = error instanceof Error ? error.message : 'Login failed.'
@@ -58,7 +58,10 @@ async function onGoogleLogin(response: { credential: string }) {
   try {
     await authStore.handleGoogleAuth(response.credential)
     authStatusTone.value = 'success'
-    authStatus.value = 'Logged in with Google successfully.'
+    authStatus.value = 'Logged in with Google. Syncing vocabulary…'
+    // Auto-pull latest vocabulary on login
+    await vocabularyStore.loadVocabulary()
+    authStatus.value = `Logged in with Google. ${vocabularyStore.totalWords} words loaded.`
   } catch (error) {
     authStatusTone.value = 'error'
     authStatus.value = error instanceof Error ? error.message : 'Google login failed.'
@@ -70,23 +73,9 @@ async function handleSyncNow() {
   isSyncing.value = true
   authStatus.value = ''
   try {
-    // Derive is_in_mistake_notebook from the actual notebook state rather than
-    // the word's cached flag.  This is the "sync state reset": if clearNotebook
-    // ran, mistakesStore.notebook is {}, so every word gets false — preventing
-    // stale cached flags from resurrecting deleted items in the cloud.
-    const reconciledWords = vocabularyStore.words.map((word) => ({
-      ...word,
-      memory: {
-        ...word.memory,
-        is_in_mistake_notebook:
-          word.id in mistakesStore.notebook
-            ? !mistakesStore.notebook[word.id].resolved
-            : false,
-      },
-    }))
-    await syncWordsToCloud(reconciledWords, authStore.token)
+    const result = await vocabularyStore.smartSync()
     authStatusTone.value = 'success'
-    authStatus.value = `Synced ${vocabularyStore.words.length} words to cloud.`
+    authStatus.value = `Synced! Pulled ${result.added} new + ${result.updated} updated words, pushed ${result.pushed} total to cloud.`
   } catch (error) {
     authStatusTone.value = 'error'
     authStatus.value = error instanceof Error ? error.message : 'Sync failed.'

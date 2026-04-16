@@ -8,6 +8,7 @@ import { vocabularyRouter } from './routes/vocabulary.js'
 import { authRouter } from './routes/auth.js'
 import { wordsRouter } from './routes/words.js'
 import { mistakesRouter } from './routes/mistakes.js'
+import { quizRouter } from './routes/quiz.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const distPath = path.join(__dirname, '..', 'dist')
@@ -76,6 +77,7 @@ app.use('/api/auth', authLimiter, authRouter)
 app.use('/api/words', wordsRouter)
 app.use('/api/mistakes', mistakesRouter)
 app.use('/api/vocabulary', vocabularyRouter)
+app.use('/api/quiz', quizRouter)
 
 // Serve Vue SPA static files
 app.use(express.static(distPath))

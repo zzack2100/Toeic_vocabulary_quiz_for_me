@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onActivated, onMounted, ref } from 'vue'
 import { storeToRefs } from 'pinia'
 import { RouterLink } from 'vue-router'
 import StatCard from '../components/dashboard/StatCard.vue'
@@ -10,13 +10,30 @@ import { useVocabularyStore } from '../stores/vocabulary'
 import { useReviewStore } from '../stores/review'
 import { useMistakesStore } from '../stores/mistakes'
 import { useSettingsStore } from '../stores/settings'
+import { useAuthStore } from '../stores/auth'
 
 const vocabularyStore = useVocabularyStore()
 const reviewStore = useReviewStore()
 const mistakesStore = useMistakesStore()
 const settingsStore = useSettingsStore()
+const authStore = useAuthStore()
 
 const { isExpanding, expansionStatus, expansionProgress } = storeToRefs(vocabularyStore)
+
+// Pull latest vocabulary from the server every time the dashboard is entered
+async function refreshFromCloud() {
+  if (authStore.isAuthenticated) {
+    try {
+      await vocabularyStore.pullFromCloud()
+      reviewStore.calculateDueWords(vocabularyStore.words)
+    } catch {
+      // Silent — local data is still usable
+    }
+  }
+}
+
+onMounted(refreshFromCloud)
+onActivated(refreshFromCloud)
 
 const TOEIC_CATEGORIES = [
   { value: 'General Business', label: '商業 (Business)' },
